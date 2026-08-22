@@ -1,0 +1,6 @@
+{
+  "name": "Saigon Memory - Hồi Ức Chợ Bến Thành",
+  "description": "A nostalgic 16-bit retro point-and-click adventure game set in 1990s Saigon around Ben Thanh Market, featuring interactive puzzles, dialogue system, quest log, and inventory management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

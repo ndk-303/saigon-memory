@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-ui: "Space Mono", monospace;
+    --font-dialogue: "Courier Prime", serif;
+    --font-pixel: "VT323", monospace;
+  }
+}
+
+.font-ui-label {
+  font-family: 'Space Mono', monospace;
+}
+
+.font-dialogue-text {
+  font-family: 'Courier Prime', serif;
+}
+
+.font-pixel {
+  font-family: 'VT323', monospace;
+}
+
+/* Retro Dither Background */
+.dither-bg {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.25) 0px,
+    rgba(0, 0, 0, 0.25) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+.dither-dots {
+  background-image: radial-gradient(rgba(255, 198, 124, 0.15) 1px, transparent 0);
+  background-size: 4px 4px;
+}
+
+/* CRT Scanline Effect */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* Pixel Perfect Borders */
+.pixel-box {
+  box-shadow: 
+    0 -4px 0 0 #43302c,
+    0 4px 0 0 #43302c,
+    -4px 0 0 0 #43302c,
+    4px 0 0 0 #43302c,
+    4px 4px 0 0 #000000;
+}
+
+.pixel-box-primary {
+  box-shadow: 
+    0 -4px 0 0 #f4a424,
+    0 4px 0 0 #f4a424,
+    -4px 0 0 0 #f4a424,
+    4px 0 0 0 #f4a424,
+    4px 4px 0 0 #000000;
+}
+
+.pixel-border-inset {
+  border-top: 4px solid #180b07;
+  border-left: 4px solid #180b07;
+  border-bottom: 4px solid #524434;
+  border-right: 4px solid #524434;
+}
+
+.pixel-border-outset {
+  border-top: 4px solid #9f8e7a;
+  border-left: 4px solid #9f8e7a;
+  border-bottom: 4px solid #180b07;
+  border-right: 4px solid #180b07;
+}
+
+.pixel-border-card {
+  box-shadow: 
+    inset 2px 2px 0px rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0px rgba(0, 0, 0, 0.5),
+    4px 4px 0px rgba(0, 0, 0, 0.8);
+}
+
+/* Pixel Checkbox */
+.pixel-checkbox {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 4px solid #1e100c;
+  background-color: #d7c3ae;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+}
+
+.pixel-checkbox:checked {
+  background-color: #f4a424;
+}
+
+.pixel-checkbox:checked::before {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: #1e100c;
+  line-height: 1;
+}
+
+/* Keyframe animations */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink-cursor 0.8s step-end infinite;
+}
+
+@keyframes spark-flicker {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  20% { opacity: 1; transform: scale(1.3); }
+  40% { opacity: 0.2; transform: scale(0.8); }
+  60% { opacity: 1; transform: scale(1.5); }
+  80% { opacity: 0; transform: scale(0.5); }
+}
+
+.animate-spark {
+  animation: spark-flicker 1.8s infinite;
+  filter: drop-shadow(0 0 6px #ffc67c);
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 6px #ffc67c, inset 0 0 6px #ffc67c; }
+  50% { box-shadow: 0 0 16px #f4a424, inset 0 0 12px #f4a424; }
+}
+
+.animate-glow {
+  animation: glow-pulse 2s infinite ease-in-out;
+}
+
+/* Custom Scrollbar for 90s OS style */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: #180b07;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #524434;
+  border: 2px solid #9f8e7a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9f8e7a;
+}
+
