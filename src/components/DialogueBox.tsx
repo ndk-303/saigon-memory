@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { DialogueNode, DialogueChoice } from '../types';
-import { GuardAvatar, AuntieAvatar, MaiAvatar, GrandpaAvatar } from './PixelIcons';
+import {
+  GuardAvatar,
+  AuntieAvatar,
+  MaiAvatar,
+  GrandpaAvatar,
+  PeterAvatar,
+  PostmanAvatar,
+  TailorAvatar,
+  HoangAvatar,
+} from './PixelIcons';
 import { sound } from '../utils/audio';
 
 interface DialogueBoxProps {
@@ -10,6 +19,7 @@ interface DialogueBoxProps {
   onSelectChoice: (choice: DialogueChoice) => void;
   onClose?: () => void;
 }
+
 
 export const DialogueBox: React.FC<DialogueBoxProps> = ({
   dialogue,
@@ -72,6 +82,14 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
         return <AuntieAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
       case 'grandpa':
         return <GrandpaAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
+      case 'peter':
+        return <PeterAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
+      case 'postman':
+        return <PostmanAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
+      case 'tailor':
+        return <TailorAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
+      case 'hoang':
+        return <HoangAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;
       case 'mai':
       default:
         return <MaiAvatar className="w-18 h-18 sm:w-20 sm:h-20" />;

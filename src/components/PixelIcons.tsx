@@ -194,3 +194,224 @@ export const GrandpaAvatar: React.FC<{ className?: string }> = ({ className = "w
     </svg>
   </div>
 );
+
+export const PixelTweezerIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <line x1="8" y1="8" x2="22" y2="24" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="square" />
+    <line x1="12" y1="6" x2="24" y2="22" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="square" />
+    <circle cx="23" cy="23" r="2" fill="#64748b" />
+    <rect x="7" y="7" width="2" height="2" fill="#475569" />
+  </svg>
+);
+
+export const PixelStampIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <rect x="5" y="5" width="22" height="22" fill="#dc2626" stroke="#ffffff" strokeWidth="2" strokeDasharray="3 2" />
+    <rect x="8" y="8" width="16" height="16" fill="#fef2f2" />
+    <circle cx="16" cy="16" r="5" fill="#f87171" />
+    <rect x="14" y="11" width="4" height="2" fill="#991b1b" />
+    <rect x="15" y="19" width="2" height="2" fill="#991b1b" />
+  </svg>
+);
+
+export const PixelMagnifierIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <circle cx="13" cy="13" r="8" fill="#38bdf8" fillOpacity="0.4" stroke="#f59e0b" strokeWidth="2.5" />
+    <circle cx="13" cy="13" r="5" fill="#e0f2fe" fillOpacity="0.6" />
+    <line x1="19" y1="19" x2="27" y2="27" stroke="#b45309" strokeWidth="3.5" strokeLinecap="square" />
+    <line x1="20" y1="20" x2="26" y2="26" stroke="#f59e0b" strokeWidth="2" strokeLinecap="square" />
+  </svg>
+);
+
+export const PixelLetterIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <rect x="4" y="7" width="24" height="18" fill="#fef3c7" stroke="#78350f" strokeWidth="1.5" />
+    <polyline points="4,7 16,17 28,7" stroke="#b45309" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="2.5" fill="#dc2626" />
+    <line x1="8" y1="20" x2="13" y2="20" stroke="#b45309" strokeWidth="1" />
+  </svg>
+);
+
+export const PixelReceiptIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <polygon points="6,4 26,4 26,28 22,26 18,28 14,26 10,28 6,26" fill="#fef9c3" stroke="#854d0e" strokeWidth="1" />
+    <line x1="9" y1="8" x2="23" y2="8" stroke="#a16207" strokeWidth="1.5" />
+    <line x1="9" y1="12" x2="19" y2="12" stroke="#a16207" strokeWidth="1" />
+    <line x1="9" y1="16" x2="21" y2="16" stroke="#a16207" strokeWidth="1" />
+    <line x1="9" y1="20" x2="16" y2="20" stroke="#ca8a04" strokeWidth="1" />
+  </svg>
+);
+
+export const PixelScissorsIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <circle cx="9" cy="23" r="4" fill="none" stroke="#d97706" strokeWidth="2" />
+    <circle cx="23" cy="23" r="4" fill="none" stroke="#d97706" strokeWidth="2" />
+    <line x1="12" y1="20" x2="24" y2="6" stroke="#94a3b8" strokeWidth="2" strokeLinecap="square" />
+    <line x1="20" y1="20" x2="8" y2="6" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="square" />
+    <circle cx="16" cy="14" r="1.5" fill="#f59e0b" />
+  </svg>
+);
+
+export const PixelThreadIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <rect x="8" y="7" width="16" height="18" fill="#facc15" stroke="#78350f" strokeWidth="1.5" />
+    <line x1="8" y1="11" x2="24" y2="11" stroke="#eab308" strokeWidth="1.5" />
+    <line x1="8" y1="15" x2="24" y2="15" stroke="#eab308" strokeWidth="1.5" />
+    <line x1="8" y1="19" x2="24" y2="19" stroke="#eab308" strokeWidth="1.5" />
+    <line x1="11" y1="7" x2="11" y2="4" stroke="#d97706" strokeWidth="2" />
+    <line x1="21" y1="7" x2="21" y2="4" stroke="#d97706" strokeWidth="2" />
+    <line x1="11" y1="25" x2="11" y2="28" stroke="#d97706" strokeWidth="2" />
+    <line x1="21" y1="25" x2="21" y2="28" stroke="#d97706" strokeWidth="2" />
+  </svg>
+);
+
+export const PixelRadioKnobIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <circle cx="16" cy="16" r="12" fill="#334155" stroke="#0f172a" strokeWidth="2" />
+    <circle cx="16" cy="16" r="9" fill="#475569" stroke="#64748b" strokeWidth="1" />
+    <rect x="15" y="6" width="2" height="6" fill="#f1f5f9" />
+    <circle cx="16" cy="16" r="3" fill="#0f172a" />
+  </svg>
+);
+
+export const PixelMosaicTileIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <rect x="4" y="4" width="24" height="24" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
+    <rect x="7" y="7" width="8" height="8" fill="#38bdf8" />
+    <rect x="17" y="7" width="8" height="8" fill="#fbbf24" />
+    <rect x="7" y="17" width="8" height="8" fill="#f97316" />
+    <rect x="17" y="17" width="8" height="8" fill="#34d399" />
+  </svg>
+);
+
+export const PixelRecipeIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    <rect x="5" y="4" width="22" height="24" fill="#b45309" stroke="#451a03" strokeWidth="2" />
+    <rect x="7" y="6" width="18" height="20" fill="#fef3c7" />
+    <circle cx="16" cy="13" r="3.5" fill="#f97316" stroke="#c2410c" strokeWidth="1" />
+    <line x1="10" y1="20" x2="22" y2="20" stroke="#78350f" strokeWidth="1.5" />
+    <line x1="10" y1="23" x2="18" y2="23" stroke="#78350f" strokeWidth="1" />
+  </svg>
+);
+
+export const PeterAvatar: React.FC<{ className?: string }> = ({ className = "w-16 h-16" }) => (
+  <div className={`relative overflow-hidden bg-[#2c1c18] border-2 border-[#9f8e7a] ${className}`}>
+    <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect width="40" height="40" fill="#2b1c17" />
+      <rect x="10" y="8" width="20" height="8" fill="#854d0e" />
+      <rect x="12" y="14" width="16" height="13" fill="#fed7aa" />
+      <rect x="15" y="18" width="2" height="2" fill="#0284c7" />
+      <rect x="23" y="18" width="2" height="2" fill="#0284c7" />
+      <path d="M17 23 Q20 25 23 23" stroke="#c2410c" strokeWidth="1" fill="none" />
+      <rect x="8" y="27" width="24" height="13" fill="#dc2626" />
+      <rect x="6" y="27" width="4" height="10" fill="#475569" />
+    </svg>
+  </div>
+);
+
+export const PostmanAvatar: React.FC<{ className?: string }> = ({ className = "w-16 h-16" }) => (
+  <div className={`relative overflow-hidden bg-[#2c1c18] border-2 border-[#9f8e7a] ${className}`}>
+    <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect width="40" height="40" fill="#2b1c17" />
+      <rect x="10" y="6" width="20" height="6" fill="#0369a1" />
+      <rect x="8" y="10" width="24" height="2" fill="#075985" />
+      <rect x="12" y="12" width="16" height="15" fill="#fcd34d" />
+      <rect x="15" y="17" width="2" height="2" fill="#1e100c" />
+      <rect x="23" y="17" width="2" height="2" fill="#1e100c" />
+      <line x1="17" y1="23" x2="23" y2="23" stroke="#b45309" strokeWidth="1.5" />
+      <rect x="8" y="27" width="24" height="13" fill="#0284c7" />
+      <circle cx="20" cy="30" r="1.5" fill="#f59e0b" />
+    </svg>
+  </div>
+);
+
+export const TailorAvatar: React.FC<{ className?: string }> = ({ className = "w-16 h-16" }) => (
+  <div className={`relative overflow-hidden bg-[#2c1c18] border-2 border-[#9f8e7a] ${className}`}>
+    <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect width="40" height="40" fill="#2b1c17" />
+      <rect x="10" y="8" width="20" height="18" fill="#1e100c" />
+      <rect x="13" y="13" width="14" height="13" fill="#fed7aa" />
+      <line x1="15" y1="18" x2="18" y2="18" stroke="#78350f" strokeWidth="1.5" />
+      <line x1="22" y1="18" x2="25" y2="18" stroke="#78350f" strokeWidth="1.5" />
+      <path d="M17 23 Q20 25 23 23" stroke="#b45309" strokeWidth="1.2" fill="none" />
+      <rect x="8" y="26" width="24" height="14" fill="#9333ea" />
+      <line x1="12" y1="28" x2="28" y2="28" stroke="#facc15" strokeWidth="1.5" />
+    </svg>
+  </div>
+);
+
+export const HoangAvatar: React.FC<{ className?: string }> = ({ className = "w-16 h-16" }) => (
+  <div className={`relative overflow-hidden bg-[#2c1c18] border-2 border-[#9f8e7a] ${className}`}>
+    <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect width="40" height="40" fill="#2b1c17" />
+      <rect x="10" y="7" width="20" height="8" fill="#334155" />
+      <rect x="12" y="13" width="16" height="14" fill="#fed7aa" />
+      <rect x="15" y="18" width="2" height="2" fill="#0f172a" />
+      <rect x="23" y="18" width="2" height="2" fill="#0f172a" />
+      <path d="M17 23 Q20 25 23 23" stroke="#b45309" strokeWidth="1" fill="none" />
+      <rect x="8" y="27" width="24" height="13" fill="#ea580c" />
+    </svg>
+  </div>
+);
+
+export const PixelGuitarStringIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    {/* Brass ball end */}
+    <circle cx="6" cy="26" r="3" fill="#f59e0b" stroke="#78350f" strokeWidth="1" />
+    {/* Coiled string */}
+    <path d="M7 25 Q16 10 26 6" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="26" cy="6" r="1.5" fill="#f8fafc" />
+    {/* Shimmer sparkle */}
+    <rect x="14" y="14" width="2" height="2" fill="#ffffff" />
+  </svg>
+);
+
+export const PixelSoupPotIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    {/* Steam lines */}
+    <path d="M12 4 Q10 7 12 10" stroke="#f1f5f9" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+    <path d="M16 3 Q18 6 16 9" stroke="#f1f5f9" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+    <path d="M20 4 Q18 7 20 10" stroke="#f1f5f9" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+    {/* Pot body */}
+    <rect x="6" y="11" width="20" height="15" rx="2" fill="#f59e0b" stroke="#451a03" strokeWidth="2" />
+    {/* Pot rim */}
+    <rect x="4" y="9" width="24" height="3" fill="#fbbf24" stroke="#78350f" strokeWidth="1" />
+    {/* Side handles */}
+    <rect x="2" y="12" width="3" height="4" fill="#78350f" />
+    <rect x="27" y="12" width="3" height="4" fill="#78350f" />
+    {/* Rich broth & spice toppings */}
+    <ellipse cx="16" cy="11" rx="8" ry="2" fill="#ea580c" />
+    <circle cx="13" cy="11" r="1" fill="#22c55e" />
+    <circle cx="18" cy="11" r="1" fill="#ef4444" />
+  </svg>
+);
+
+export const PixelPolishedCoinIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    {/* Gleaming silver coin */}
+    <circle cx="16" cy="16" r="13" fill="#f8fafc" stroke="#334155" strokeWidth="2" />
+    <circle cx="16" cy="16" r="10" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
+    {/* Marianne silhouette */}
+    <path d="M14 10 Q18 10 18 14 Q18 18 13 22 L20 22" stroke="#64748b" strokeWidth="1.5" fill="none" />
+    {/* Stars & Gleams */}
+    <polygon points="22,6 23,8 25,9 23,10 22,12 21,10 19,9 21,8" fill="#fbbf24" />
+    <polygon points="8,20 9,21 10,22 9,23 8,24 7,23 6,22 7,21" fill="#38bdf8" />
+  </svg>
+);
+
+export const PixelDecodedNotebookIcon: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" style={{ imageRendering: 'pixelated' }}>
+    {/* Open Notebook */}
+    <rect x="4" y="6" width="24" height="20" fill="#fef3c7" stroke="#78350f" strokeWidth="2" />
+    <line x1="16" y1="6" x2="16" y2="26" stroke="#b45309" strokeWidth="2" />
+    {/* Magnifier over the notebook */}
+    <circle cx="21" cy="15" r="6" fill="#38bdf8" opacity="0.5" stroke="#0284c7" strokeWidth="2" />
+    <line x1="25" y1="19" x2="29" y2="23" stroke="#0284c7" strokeWidth="3" strokeLinecap="square" />
+    {/* Numbers glowing */}
+    <rect x="18" y="13" width="2" height="4" fill="#dc2626" />
+    <rect x="21" y="13" width="2" height="4" fill="#dc2626" />
+  </svg>
+);
+
+
+
