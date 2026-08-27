@@ -1,0 +1,20 @@
+{
+  "entities": {
+    "game_saves": {
+      "title": "Game Saves",
+      "description": "Stores player progress, inventory, quest states, and chapter milestones",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of player" },
+        "currentChapter": { "type": "number", "description": "Current active chapter (1-4)" },
+        "currentScene": { "type": "string", "description": "Current scene identifier" },
+        "unlockedChapters": { "type": "array", "description": "List of unlocked chapters" },
+        "inventory": { "type": "array", "description": "List of inventory items" },
+        "flags": { "type": "object", "description": "Game milestone flags and puzzles solved" },
+        "quests": { "type": "array", "description": "Quest progression state" },
+        "updatedAt": { "type": "string", "description": "Timestamp of last save" }
+      },
+      "required": ["userId", "currentChapter", "updatedAt"]
+    }
+  }
+}

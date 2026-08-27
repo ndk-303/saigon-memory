@@ -60,6 +60,7 @@ export const ChapterMapModal: React.FC<ChapterMapModalProps> = ({
             const isUnlocked = unlockedChapters.includes(chapter.id);
             const isCurrent = chapter.id === currentChapter;
             const isPastChapter = isUnlocked && chapter.id < currentChapter;
+            const isNextAvailable = isUnlocked && chapter.id > currentChapter;
 
             return (
               <div
@@ -71,11 +72,13 @@ export const ChapterMapModal: React.FC<ChapterMapModalProps> = ({
                     onClose();
                   }
                 }}
-                className={`relative border-3 p-4 flex flex-col justify-between transition-all cursor-pointer shadow-md ${
+                className={`relative border-3 p-4 flex flex-col justify-between transition-all shadow-md ${
                   isCurrent
-                    ? 'bg-[#3d271d] border-[#f59e0b] ring-2 ring-[#f59e0b]'
+                    ? 'bg-[#3d271d] border-[#f59e0b] ring-2 ring-[#f59e0b] cursor-pointer'
+                    : isNextAvailable
+                    ? 'bg-[#1a2e26] border-[#22c55e] hover:border-[#86efac] hover:bg-[#203a30] cursor-pointer ring-1 ring-[#22c55e]'
                     : isUnlocked
-                    ? 'bg-[#1e100c] border-[#9f8e7a] hover:border-[#ffedd5] hover:bg-[#2c1c18]'
+                    ? 'bg-[#1e100c] border-[#9f8e7a] hover:border-[#ffedd5] hover:bg-[#2c1c18] cursor-pointer'
                     : 'bg-[#150e0c] border-[#372621] opacity-60 cursor-not-allowed'
                 }`}
               >
@@ -85,12 +88,20 @@ export const ChapterMapModal: React.FC<ChapterMapModalProps> = ({
                     className={`px-2 py-0.5 font-ui-label text-[10px] font-bold uppercase tracking-wider border ${
                       isCurrent
                         ? 'bg-[#f59e0b] text-[#180b07] border-black'
+                        : isNextAvailable
+                        ? 'bg-[#15803d] text-[#bbf7d0] border-[#86efac] animate-pulse'
                         : isPastChapter
-                        ? 'bg-[#14532d] text-[#86efac] border-[#22c55e]'
+                        ? 'bg-[#1e293b] text-[#93c5fd] border-[#60a5fa]'
                         : 'bg-[#372621] text-[#9f8e7a] border-[#524434]'
                     }`}
                   >
-                    {isCurrent ? 'ĐANG CHƠI' : isPastChapter ? 'ĐÃ QUA MÀN' : 'CHƯA MỞ KHÓA'}
+                    {isCurrent
+                      ? 'ĐANG CHƠI'
+                      : isNextAvailable
+                      ? 'MỞ KHÓA MỚI ★'
+                      : isPastChapter
+                      ? 'ĐÃ QUA MÀN'
+                      : 'CHƯA MỞ KHÓA'}
                   </span>
 
                   <div className="flex items-center gap-1 text-xs text-[#f59e0b] font-bold">
@@ -120,7 +131,7 @@ export const ChapterMapModal: React.FC<ChapterMapModalProps> = ({
                   </span>
                   {isUnlocked ? (
                     <span className="flex items-center gap-1 text-xs text-[#f59e0b] font-bold group-hover:translate-x-1">
-                      Chuyển Màn <ArrowRight className="w-3.5 h-3.5" />
+                      {isCurrent ? 'Tiếp tục màn này' : isNextAvailable ? 'Vào màn tiếp theo ->' : 'Xem lại màn'} <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-xs text-[#78716c]">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   InventoryItem,
   ItemId,
@@ -34,11 +34,27 @@ import { ChapterTransitionOverlay } from './components/ChapterTransitionOverlay'
 import { ChapterMapModal } from './components/ChapterMapModal';
 import { SceneTransitionCurtain } from './components/SceneTransitionCurtain';
 import { StoryEndingModal } from './components/StoryEndingModal';
+import { BootScene } from './components/BootScene';
+import { MainMenuScene } from './components/MainMenuScene';
+import { firebaseService, GameProgressData, GameFlags } from './services/firebaseService';
 import { sound } from './utils/audio';
 import confetti from 'canvas-confetti';
-import { Sparkles, Wand2 } from 'lucide-react';
+import { Sparkles, CloudCheck, Save } from 'lucide-react';
+
+export type GameSceneState = 'boot' | 'main_menu' | 'playing';
 
 export default function App() {
+  // Game Screen State Flow
+  const [gameState, setGameState] = useState<GameSceneState>('boot');
+  const [bootStatusText, setBootStatusText] = useState('Đang khởi tạo ứng dụng...');
+  const [bootProgress, setBootProgress] = useState(15);
+
+  // Firebase Auth & Cloud Save State
+  const [guestUid, setGuestUid] = useState<string | null>(null);
+  const [cloudSaveData, setCloudSaveData] = useState<GameProgressData | null>(null);
+  const [isLoadingSave, setIsLoadingSave] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
   // Chapter & Scene State
   const [currentChapter, setCurrentChapter] = useState<ChapterId>(1);
   const [unlockedChapters, setUnlockedChapters] = useState<ChapterId[]>([1]);
@@ -73,7 +89,7 @@ export default function App() {
   const [isQuestLogOpen, setIsQuestLogOpen] = useState(false);
   const [isStoryEndingOpen, setIsStoryEndingOpen] = useState(false);
 
-  // Milestones & Solved States
+  // Milestones & Solved States Flags
   const [isJuicePressed, setIsJuicePressed] = useState(false);
   const [isFuseboxRepaired, setIsFuseboxRepaired] = useState(false);
   const [hasPliers, setHasPliers] = useState(false);
@@ -103,9 +119,137 @@ export default function App() {
     }, 4500);
   };
 
-  // Keyboard Shortcuts
+  // Compile current flags helper
+  const getCurrentFlags = useCallback((): GameFlags => ({
+    isJuicePressed,
+    isFuseboxRepaired,
+    hasPliers,
+    isMailboxUnlocked,
+    hasTweezer,
+    hasRareStamp,
+    hasMagnifier,
+    isGuitarTuned,
+    isRadioTuned,
+    hasScissors,
+    hasThread,
+    hasRadioKnob,
+    hasHomeKey,
+    isHuTieuCooked,
+    isChestOpened,
+    hasMosaicTile,
+  }), [
+    isJuicePressed,
+    isFuseboxRepaired,
+    hasPliers,
+    isMailboxUnlocked,
+    hasTweezer,
+    hasRareStamp,
+    hasMagnifier,
+    isGuitarTuned,
+    isRadioTuned,
+    hasScissors,
+    hasThread,
+    hasRadioKnob,
+    hasHomeKey,
+    isHuTieuCooked,
+    isChestOpened,
+    hasMosaicTile,
+  ]);
+
+  // Cloud Auto-Save Function
+  const saveProgressToCloud = useCallback(
+    async (
+      overrideChapter?: ChapterId,
+      overrideScene?: SceneId,
+      overrideInventory?: InventoryItem[],
+      overrideFlags?: Partial<GameFlags>,
+      overrideQuests?: Quest[],
+      overrideUnlocked?: ChapterId[]
+    ) => {
+      setIsSaving(true);
+      const currentFlags = getCurrentFlags();
+      const payload = {
+        currentChapter: overrideChapter ?? currentChapter,
+        currentScene: overrideScene ?? currentScene,
+        unlockedChapters: overrideUnlocked ?? unlockedChapters,
+        inventory: overrideInventory ?? inventory,
+        flags: { ...currentFlags, ...(overrideFlags || {}) },
+        quests: overrideQuests ?? quests,
+      };
+
+      const success = await firebaseService.saveGameProgress(payload);
+      if (success) {
+        setCloudSaveData({
+          ...payload,
+          updatedAt: new Date().toISOString(),
+          userId: guestUid || undefined,
+        });
+      }
+      setIsSaving(false);
+      return success;
+    },
+    [currentChapter, currentScene, unlockedChapters, inventory, quests, getCurrentFlags, guestUid]
+  );
+
+  // =========================================================================
+  // BOOT & FIREBASE AUTHENTICATION LIFECYCLE
+  // =========================================================================
+  useEffect(() => {
+    let isMounted = true;
+
+    async function initGameSession() {
+      try {
+        setBootStatusText('Đang xác thực tài khoản Khách Ẩn Danh...');
+        setBootProgress(35);
+
+        const authResult = await firebaseService.initAnonymousAuth();
+        if (!isMounted) return;
+
+        setGuestUid(authResult.uid);
+        setBootStatusText('Đang tải bản lưu từ Firebase Firestore...');
+        setBootProgress(70);
+
+        const save = await firebaseService.loadGameProgress();
+        if (!isMounted) return;
+
+        if (save) {
+          setCloudSaveData(save);
+        }
+        setIsLoadingSave(false);
+        setBootProgress(100);
+        setBootStatusText('Khởi động thành công!');
+
+        setTimeout(() => {
+          if (isMounted) {
+            setGameState('main_menu');
+          }
+        }, 600);
+      } catch (err) {
+        console.error('Boot initialization error:', err);
+        if (!isMounted) return;
+        setIsLoadingSave(false);
+        setBootProgress(100);
+        setBootStatusText('Vào game chế độ ngoại tuyến...');
+        setTimeout(() => {
+          if (isMounted) {
+            setGameState('main_menu');
+          }
+        }, 800);
+      }
+    }
+
+    initGameSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Keyboard Shortcuts (Q: Sổ tay, M: Bản đồ, Esc: Đóng modal)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameState !== 'playing') return;
+
       if (e.key === 'q' || e.key === 'Q') {
         setIsQuestLogOpen((prev) => !prev);
         sound.playClick();
@@ -130,7 +274,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [gameState]);
 
   const handleToggleMute = () => {
     setIsMuted((prev) => {
@@ -145,6 +289,246 @@ export default function App() {
       return;
     }
     setSelectedItemId((prev) => (prev === id ? null : id));
+  };
+
+  // =========================================================================
+  // MAIN MENU ACTIONS: START NEW GAME, CONTINUE, SELECT CHAPTER, GO HOME
+  // =========================================================================
+  const handleStartNewGame = async () => {
+    // Reset all game state to default Chapter 1
+    setCurrentChapter(1);
+    setUnlockedChapters([1]);
+    setCurrentScene('CH1_BEN_THANH');
+    setInventory(INITIAL_ITEMS);
+    setSelectedItemId('sugarcane_juice');
+    setQuests(INITIAL_QUESTS);
+    setCurrentDialogue(DIALOGUE_DATABASE['guard_intro']);
+
+    // Reset flags
+    setIsJuicePressed(false);
+    setIsFuseboxRepaired(false);
+    setHasPliers(false);
+    setIsMailboxUnlocked(false);
+    setHasTweezer(false);
+    setHasRareStamp(false);
+    setHasMagnifier(false);
+    setIsGuitarTuned(false);
+    setIsRadioTuned(false);
+    setHasScissors(false);
+    setHasThread(false);
+    setHasRadioKnob(false);
+    setHasHomeKey(false);
+    setIsHuTieuCooked(false);
+    setIsChestOpened(false);
+    setHasMosaicTile(false);
+
+    // Close modals
+    setIsSugarcaneModalOpen(false);
+    setIsWirePuzzleOpen(false);
+    setIsDialPuzzleOpen(false);
+    setIsGuitarModalOpen(false);
+    setIsRadioPuzzleOpen(false);
+    setIsHuTieuModalOpen(false);
+    setIsMosaicPuzzleOpen(false);
+    setIsChapterOverlayOpen(false);
+    setIsChapterMapOpen(false);
+    setIsQuestLogOpen(false);
+    setIsStoryEndingOpen(false);
+    setInspectedItem(null);
+
+    // Save fresh progress to Firebase
+    const freshFlags: GameFlags = {
+      isJuicePressed: false,
+      isFuseboxRepaired: false,
+      hasPliers: false,
+      isMailboxUnlocked: false,
+      hasTweezer: false,
+      hasRareStamp: false,
+      hasMagnifier: false,
+      isGuitarTuned: false,
+      isRadioTuned: false,
+      hasScissors: false,
+      hasThread: false,
+      hasRadioKnob: false,
+      hasHomeKey: false,
+      isHuTieuCooked: false,
+      isChestOpened: false,
+      hasMosaicTile: false,
+    };
+
+    saveProgressToCloud(1, 'CH1_BEN_THANH', INITIAL_ITEMS, freshFlags, INITIAL_QUESTS, [1]);
+
+    sound.playSelect();
+    setGameState('playing');
+    showToast('✨ Bắt đầu hành trình mới từ Chợ Bến Thành (1992)!');
+  };
+
+  const handleContinueGame = () => {
+    if (!cloudSaveData) return;
+
+    // Restore full state from Cloud Save
+    const {
+      currentChapter: savedChap,
+      currentScene: savedScene,
+      unlockedChapters: savedUnlocked,
+      inventory: savedInventory,
+      flags: savedFlags,
+      quests: savedQuests,
+    } = cloudSaveData;
+
+    const restoredUnlocked = Array.from(
+      new Set([
+        1,
+        ...(savedUnlocked || [1]),
+        ...(savedFlags?.isFuseboxRepaired ? [2] : []),
+        ...(savedFlags?.isMailboxUnlocked ? [3] : []),
+        ...(savedFlags?.isRadioTuned ? [4] : []),
+      ])
+    ).sort() as ChapterId[];
+
+    // Calculate smart resume chapter: If current chapter was solved, auto-advance to next
+    let chapToSet: ChapterId = savedChap || 1;
+    if (savedFlags?.isFuseboxRepaired && chapToSet === 1) {
+      chapToSet = 2;
+    } else if (savedFlags?.isMailboxUnlocked && chapToSet <= 2) {
+      chapToSet = 3;
+    } else if (savedFlags?.isRadioTuned && chapToSet <= 3) {
+      chapToSet = 4;
+    }
+
+    const targetInfo = CHAPTERS_INFO.find((c) => c.id === chapToSet);
+    const sceneToSet = (targetInfo ? targetInfo.sceneId : savedScene) || 'CH1_BEN_THANH';
+
+    setCurrentChapter(chapToSet);
+    setCurrentScene(sceneToSet);
+    setUnlockedChapters(restoredUnlocked);
+    setInventory(savedInventory || INITIAL_ITEMS);
+    
+    // Set quest active status according to resumed chapter
+    const updatedQuests = (savedQuests || INITIAL_QUESTS).map((q) => ({
+      ...q,
+      isActive: q.chapter === chapToSet,
+    }));
+    setQuests(updatedQuests);
+
+    if (savedFlags) {
+      setIsJuicePressed(!!savedFlags.isJuicePressed);
+      setIsFuseboxRepaired(!!savedFlags.isFuseboxRepaired);
+      setHasPliers(!!savedFlags.hasPliers);
+      setIsMailboxUnlocked(!!savedFlags.isMailboxUnlocked);
+      setHasTweezer(!!savedFlags.hasTweezer);
+      setHasRareStamp(!!savedFlags.hasRareStamp);
+      setHasMagnifier(!!savedFlags.hasMagnifier);
+      setIsGuitarTuned(!!savedFlags.isGuitarTuned);
+      setIsRadioTuned(!!savedFlags.isRadioTuned);
+      setHasScissors(!!savedFlags.hasScissors);
+      setHasThread(!!savedFlags.hasThread);
+      setHasRadioKnob(!!savedFlags.hasRadioKnob);
+      setHasHomeKey(!!savedFlags.hasHomeKey);
+      setIsHuTieuCooked(!!savedFlags.isHuTieuCooked);
+      setIsChestOpened(!!savedFlags.isChestOpened);
+      setHasMosaicTile(!!savedFlags.hasMosaicTile);
+    }
+
+    // Set initial chapter dialogue
+    switch (chapToSet) {
+      case 2:
+        setCurrentDialogue(DIALOGUE_DATABASE['post_office_intro']);
+        break;
+      case 3:
+        setCurrentDialogue(DIALOGUE_DATABASE['apartment_intro']);
+        break;
+      case 4:
+        setCurrentDialogue(DIALOGUE_DATABASE['alley_intro']);
+        break;
+      case 1:
+      default:
+        setCurrentDialogue(savedFlags?.isFuseboxRepaired ? DIALOGUE_DATABASE['guard_after_key'] : DIALOGUE_DATABASE['guard_intro']);
+        break;
+    }
+
+    sound.playSelect();
+    setGameState('playing');
+    showToast(`✨ Đã nạp lại tiến trình: Chương ${chapToSet} - ${targetInfo?.titleVi || ''}!`);
+  };
+
+  const handleSelectChapterFromMenu = (chapId: ChapterId) => {
+    // If save exists, apply flags and inventory first
+    if (cloudSaveData) {
+      const {
+        unlockedChapters: savedUnlocked,
+        inventory: savedInventory,
+        flags: savedFlags,
+        quests: savedQuests,
+      } = cloudSaveData;
+
+      const restoredUnlocked = Array.from(
+        new Set([
+          1,
+          chapId,
+          ...(savedUnlocked || [1]),
+          ...(savedFlags?.isFuseboxRepaired ? [2] : []),
+          ...(savedFlags?.isMailboxUnlocked ? [3] : []),
+          ...(savedFlags?.isRadioTuned ? [4] : []),
+        ])
+      ).sort() as ChapterId[];
+
+      setUnlockedChapters(restoredUnlocked);
+      if (savedInventory) setInventory(savedInventory);
+      if (savedQuests) setQuests(savedQuests);
+
+      if (savedFlags) {
+        setIsJuicePressed(!!savedFlags.isJuicePressed);
+        setIsFuseboxRepaired(!!savedFlags.isFuseboxRepaired);
+        setHasPliers(!!savedFlags.hasPliers);
+        setIsMailboxUnlocked(!!savedFlags.isMailboxUnlocked);
+        setHasTweezer(!!savedFlags.hasTweezer);
+        setHasRareStamp(!!savedFlags.hasRareStamp);
+        setHasMagnifier(!!savedFlags.hasMagnifier);
+        setIsGuitarTuned(!!savedFlags.isGuitarTuned);
+        setIsRadioTuned(!!savedFlags.isRadioTuned);
+        setHasScissors(!!savedFlags.hasScissors);
+        setHasThread(!!savedFlags.hasThread);
+        setHasRadioKnob(!!savedFlags.hasRadioKnob);
+        setHasHomeKey(!!savedFlags.hasHomeKey);
+        setIsHuTieuCooked(!!savedFlags.isHuTieuCooked);
+        setIsChestOpened(!!savedFlags.isChestOpened);
+        setHasMosaicTile(!!savedFlags.hasMosaicTile);
+      }
+    }
+
+    const targetInfo = CHAPTERS_INFO.find((c) => c.id === chapId);
+    const newScene = targetInfo ? targetInfo.sceneId : ('CH1_BEN_THANH' as SceneId);
+    setCurrentChapter(chapId);
+    setCurrentScene(newScene);
+
+    // Start initial dialogue for chosen chapter
+    switch (chapId) {
+      case 2:
+        setCurrentDialogue(DIALOGUE_DATABASE['post_office_intro']);
+        break;
+      case 3:
+        setCurrentDialogue(DIALOGUE_DATABASE['apartment_intro']);
+        break;
+      case 4:
+        setCurrentDialogue(DIALOGUE_DATABASE['alley_intro']);
+        break;
+      case 1:
+      default:
+        setCurrentDialogue(DIALOGUE_DATABASE['guard_intro']);
+        break;
+    }
+
+    sound.playSelect();
+    setGameState('playing');
+    showToast(`✨ Bắt đầu chơi: Chương ${chapId} - ${targetInfo?.titleVi || ''}!`);
+  };
+
+  const handleGoHome = async () => {
+    // Auto-save before returning home
+    await saveProgressToCloud();
+    sound.playClick();
+    setGameState('main_menu');
   };
 
   // Item Combination Logic (Combine Mechanics)
@@ -166,34 +550,33 @@ export default function App() {
 
       const newItem = ALL_DISCOVERABLE_ITEMS[recipe.resultItem];
       if (newItem) {
+        let updatedInventory: InventoryItem[] = [];
         setInventory((prev) => {
-          // Remove consumed item if applicable (e.g. thread consumed into guitar string)
           const filtered = prev.filter((i) => {
             if (recipe.resultItem === 'guitar_string' && i.id === 'nylon_thread') return false;
             if (recipe.resultItem === 'notebook_decoded' && i.id === 'notebook') return false;
             if (recipe.resultItem === 'coin_polished' && i.id === 'coin') return false;
             return true;
           });
-          return [...filtered, newItem];
+          updatedInventory = [...filtered, newItem];
+          return updatedInventory;
         });
 
         setSelectedItemId(newItem.id);
         showToast(`✨ Ghép thành công: ${newItem.nameVi}! ${recipe.successMessageVi}`);
 
-        // Complete corresponding quest
+        let updatedQuests = quests;
         if (recipe.resultItem === 'coin_polished') {
-          setQuests((prev) =>
-            prev.map((q) => (q.id === 'ch1_combine_coin' ? { ...q, isCompleted: true } : q))
-          );
+          updatedQuests = quests.map((q) => (q.id === 'ch1_combine_coin' ? { ...q, isCompleted: true } : q));
         } else if (recipe.resultItem === 'notebook_decoded') {
-          setQuests((prev) =>
-            prev.map((q) => (q.id === 'ch2_combine_lens' ? { ...q, isCompleted: true } : q))
-          );
+          updatedQuests = quests.map((q) => (q.id === 'ch2_combine_lens' ? { ...q, isCompleted: true } : q));
         } else if (recipe.resultItem === 'guitar_string') {
-          setQuests((prev) =>
-            prev.map((q) => (q.id === 'ch3_combine_string' ? { ...q, isCompleted: true } : q))
-          );
+          updatedQuests = quests.map((q) => (q.id === 'ch3_combine_string' ? { ...q, isCompleted: true } : q));
         }
+        setQuests(updatedQuests);
+
+        // Auto save on combination
+        saveProgressToCloud(undefined, undefined, updatedInventory, undefined, updatedQuests);
       }
     } else {
       sound.playCombineFail();
@@ -225,19 +608,24 @@ export default function App() {
 
     setTimeout(() => {
       setCurrentChapter(targetChapter);
-      setUnlockedChapters((prev) =>
-        prev.includes(targetChapter) ? prev : [...prev, targetChapter]
-      );
+      setUnlockedChapters((prev) => {
+        const set = new Set<ChapterId>([1, ...prev, targetChapter]);
+        if (isFuseboxRepaired || targetChapter >= 2) set.add(2);
+        if (isMailboxUnlocked || targetChapter >= 3) set.add(3);
+        if (isRadioTuned || hasHomeKey || targetChapter >= 4) set.add(4);
+        return Array.from(set).sort() as ChapterId[];
+      });
 
       const targetInfo = CHAPTERS_INFO.find((c) => c.id === targetChapter);
-      if (targetInfo) {
-        setCurrentScene(targetInfo.sceneId);
-      }
+      const newScene = targetInfo ? targetInfo.sceneId : ('CH1_BEN_THANH' as SceneId);
+      setCurrentScene(newScene);
 
       // Activate chapter quest
-      setQuests((prev) =>
-        prev.map((q) => (q.chapter === targetChapter ? { ...q, isActive: true } : q))
-      );
+      const updatedQuests = quests.map((q) => ({
+        ...q,
+        isActive: q.chapter === targetChapter,
+      }));
+      setQuests(updatedQuests);
 
       // Start initial dialogue for chapter
       switch (targetChapter) {
@@ -257,7 +645,10 @@ export default function App() {
       }
 
       setIsTransitioning(false);
-    }, 600);
+
+      // Auto save on chapter change
+      saveProgressToCloud(targetChapter, newScene, undefined, undefined, updatedQuests);
+    }, 450);
   };
 
   // POI Interaction Router
@@ -318,7 +709,8 @@ export default function App() {
       case 'inspect_souvenir':
         if (!hasTweezer) {
           setHasTweezer(true);
-          setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.tweezer]);
+          const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.tweezer];
+          setInventory(newInv);
           sound.playSelect();
           setCurrentDialogue({
             id: 'tweezer_found',
@@ -327,6 +719,7 @@ export default function App() {
             avatarType: 'mai',
             text: 'Mình đã nhặt được Kẹp Gắp Bưu Thiếp trên bàn viết thư! Giờ có thể dùng nó để lấy con tem cổ kẹt dưới sàn gạch.',
           });
+          saveProgressToCloud(undefined, undefined, newInv, { hasTweezer: true });
         } else {
           setCurrentDialogue({
             id: 'desk_clean',
@@ -349,7 +742,8 @@ export default function App() {
           });
         } else if (hasTweezer) {
           setHasRareStamp(true);
-          setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.rare_stamp]);
+          const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.rare_stamp];
+          setInventory(newInv);
           sound.playSelect();
           setCurrentDialogue({
             id: 'stamp_picked',
@@ -358,6 +752,7 @@ export default function App() {
             avatarType: 'mai',
             text: 'Khéo léo dùng que kẹp, mình đã gắp được Con Tem Cổ 1970 còn nguyên vẹn! Mau mang lại cho Peter.',
           });
+          saveProgressToCloud(undefined, undefined, newInv, { hasRareStamp: true });
         } else {
           setCurrentDialogue({
             id: 'stamp_stuck',
@@ -397,7 +792,8 @@ export default function App() {
       case 'inspect_wool_basket':
         if (!hasScissors) {
           setHasScissors(true);
-          setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.scissors]);
+          const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.scissors];
+          setInventory(newInv);
           sound.playSelect();
           setCurrentDialogue({
             id: 'scissors_found',
@@ -406,6 +802,7 @@ export default function App() {
             avatarType: 'mai',
             text: 'A, trong giỏ len phơi nắng có Cây Kéo Đồng Cổ của Cô Năm! Mau mang lại cho cô.',
           });
+          saveProgressToCloud(undefined, undefined, newInv, { hasScissors: true });
         } else {
           setCurrentDialogue({
             id: 'wool_empty',
@@ -453,9 +850,11 @@ export default function App() {
       case 'inspect_tea_cabinet':
         if (!hasMosaicTile) {
           setHasMosaicTile(true);
-          setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.mosaic_tile]);
+          const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.mosaic_tile];
+          setInventory(newInv);
           sound.playSelect();
           setCurrentDialogue(DIALOGUE_DATABASE['tea_cabinet_inspect']);
+          saveProgressToCloud(undefined, undefined, newInv, { hasMosaicTile: true });
         } else {
           setCurrentDialogue({
             id: 'cabinet_done',
@@ -513,19 +912,25 @@ export default function App() {
         setIsMosaicPuzzleOpen(true);
       } else if (currentDialogue?.actionTrigger === 'get_magnifier') {
         setHasMagnifier(true);
-        setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.magnifier]);
+        const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.magnifier];
+        setInventory(newInv);
         sound.playSelect();
         showToast('✨ Nhận được Kính Lúp Quang Học! Kéo kính lúp vào Sổ Tay để soi mật mã!');
+        saveProgressToCloud(undefined, undefined, newInv, { hasMagnifier: true });
       } else if (currentDialogue?.actionTrigger === 'get_thread') {
         setHasThread(true);
-        setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.nylon_thread]);
+        const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.nylon_thread];
+        setInventory(newInv);
         sound.playSelect();
         showToast('✨ Nhận được Cuộn Chỉ Dù! Kéo Kéo Đồng vào Cuộn Chỉ Dù để cắt dây đàn!');
+        saveProgressToCloud(undefined, undefined, newInv, { hasThread: true });
       } else if (currentDialogue?.actionTrigger === 'get_knob') {
         setHasRadioKnob(true);
-        setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.radio_knob]);
+        const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.radio_knob];
+        setInventory(newInv);
         sound.playSelect();
         showToast('✨ Nhận được Núm Xoay Radio! Hãy mang tới đài radio cổ tại quầy bar!');
+        saveProgressToCloud(undefined, undefined, newInv, { hasRadioKnob: true });
       } else if (currentDialogue?.actionTrigger === 'complete_story') {
         setIsStoryEndingOpen(true);
       }
@@ -537,9 +942,11 @@ export default function App() {
     if (nextNode) {
       if (nextNode.actionTrigger === 'get_pliers' && !hasPliers) {
         setHasPliers(true);
-        setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.pliers]);
+        const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.pliers];
+        setInventory(newInv);
         sound.playSelect();
         showToast('✨ Nhận được Kìm Cắt Dây Điện từ Bác Bảo Vệ!');
+        saveProgressToCloud(undefined, undefined, newInv, { hasPliers: true });
       }
       setCurrentDialogue(nextNode);
     } else {
@@ -551,143 +958,151 @@ export default function App() {
     handleDialogueNext(choice.nextId);
   };
 
-  // Minigame Solved Callbacks
+  // Minigame Solved Callbacks with Auto-Save
   const handleSugarcaneSolved = () => {
     setIsJuicePressed(true);
     setIsSugarcaneModalOpen(false);
     showToast('✨ Ly nước mía tắc thơm ngon mát lạnh đã sẵn sàng!');
-    setQuests((prev) =>
-      prev.map((q) => (q.id === 'ch1_juice' ? { ...q, isCompleted: true } : q))
-    );
+    const updatedQuests = quests.map((q) => (q.id === 'ch1_juice' ? { ...q, isCompleted: true } : q));
+    setQuests(updatedQuests);
+    saveProgressToCloud(undefined, undefined, undefined, { isJuicePressed: true }, updatedQuests);
   };
 
   const handleChapter1Solved = () => {
     setIsFuseboxRepaired(true);
     setIsWirePuzzleOpen(false);
-    setInventory((prev) => [
-      ...prev,
+    const newInv = [
+      ...inventory,
       ALL_DISCOVERABLE_ITEMS.antique_key,
       ALL_DISCOVERABLE_ITEMS.memory_photo,
-    ]);
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.id === 'ch1_fusebox' || q.id === 'ch1_clock'
-          ? { ...q, isCompleted: true, isActive: false }
-          : q
-      )
+    ];
+    setInventory(newInv);
+
+    const updatedQuests = quests.map((q) =>
+      q.id === 'ch1_fusebox' || q.id === 'ch1_clock'
+        ? { ...q, isCompleted: true, isActive: false }
+        : q.chapter === 2 ? { ...q, isActive: true } : q
     );
+    setQuests(updatedQuests);
 
     setCompletedChapterForOverlay(1);
     setIsChapterOverlayOpen(true);
+
+    const newUnlocked = Array.from(new Set<ChapterId>([...unlockedChapters, 1, 2])).sort() as ChapterId[];
+    setUnlockedChapters(newUnlocked);
+    saveProgressToCloud(2, 'CH2_POST_OFFICE', newInv, { isFuseboxRepaired: true }, updatedQuests, newUnlocked);
   };
 
   const handleChapter2Solved = () => {
     setIsMailboxUnlocked(true);
     setIsDialPuzzleOpen(false);
-    setInventory((prev) => [
-      ...prev,
+    const newInv = [
+      ...inventory,
       ALL_DISCOVERABLE_ITEMS.love_letter,
       ALL_DISCOVERABLE_ITEMS.cafe_receipt,
-    ]);
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.chapter === 2 ? { ...q, isCompleted: true, isActive: false } : q
-      )
+    ];
+    setInventory(newInv);
+
+    const updatedQuests = quests.map((q) =>
+      q.chapter === 2
+        ? { ...q, isCompleted: true, isActive: false }
+        : q.chapter === 3 ? { ...q, isActive: true } : q
     );
+    setQuests(updatedQuests);
 
     setCompletedChapterForOverlay(2);
     setIsChapterOverlayOpen(true);
+
+    const newUnlocked = Array.from(new Set<ChapterId>([...unlockedChapters, 1, 2, 3])).sort() as ChapterId[];
+    setUnlockedChapters(newUnlocked);
+    saveProgressToCloud(3, 'CH3_APARTMENT', newInv, { isMailboxUnlocked: true }, updatedQuests, newUnlocked);
   };
 
   const handleGuitarSolved = () => {
     setIsGuitarTuned(true);
     setIsGuitarModalOpen(false);
     setHasRadioKnob(true);
-    setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.radio_knob]);
+    const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.radio_knob];
+    setInventory(newInv);
     showToast('✨ Dây đàn đã lên chuẩn nốt Mi (E4)! Nhận được Núm Xoay Radio!');
-    setQuests((prev) =>
-      prev.map((q) => (q.id === 'ch3_tune_guitar' ? { ...q, isCompleted: true } : q))
-    );
+    const updatedQuests = quests.map((q) => (q.id === 'ch3_tune_guitar' ? { ...q, isCompleted: true } : q));
+    setQuests(updatedQuests);
+    saveProgressToCloud(undefined, undefined, newInv, { isGuitarTuned: true, hasRadioKnob: true }, updatedQuests);
   };
 
   const handleChapter3Solved = () => {
     setIsRadioTuned(true);
     setHasHomeKey(true);
     setIsRadioPuzzleOpen(false);
-    setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.brass_key]);
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.chapter === 3 ? { ...q, isCompleted: true, isActive: false } : q
-      )
+    const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.brass_key];
+    setInventory(newInv);
+
+    const updatedQuests = quests.map((q) =>
+      q.chapter === 3
+        ? { ...q, isCompleted: true, isActive: false }
+        : q.chapter === 4 ? { ...q, isActive: true } : q
     );
+    setQuests(updatedQuests);
 
     setCompletedChapterForOverlay(3);
     setIsChapterOverlayOpen(true);
+
+    const newUnlocked = Array.from(new Set<ChapterId>([...unlockedChapters, 1, 2, 3, 4])).sort() as ChapterId[];
+    setUnlockedChapters(newUnlocked);
+    saveProgressToCloud(4, 'CH4_ALLEY_HOUSE', newInv, { isRadioTuned: true, hasHomeKey: true }, updatedQuests, newUnlocked);
   };
 
   const handleHuTieuSolved = () => {
     setIsHuTieuCooked(true);
     setIsHuTieuModalOpen(false);
-    setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.traditional_soup_pot]);
+    const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.traditional_soup_pot];
+    setInventory(newInv);
     showToast('✨ Nồi Hủ Tiếu Gia Truyền đã nấu xong chuẩn vị ông ngoại!');
-    setQuests((prev) =>
-      prev.map((q) => (q.id === 'ch4_cook_hutieu' ? { ...q, isCompleted: true } : q))
-    );
+    const updatedQuests = quests.map((q) => (q.id === 'ch4_cook_hutieu' ? { ...q, isCompleted: true } : q));
+    setQuests(updatedQuests);
+    saveProgressToCloud(undefined, undefined, newInv, { isHuTieuCooked: true }, updatedQuests);
   };
 
   const handleChapter4Solved = () => {
     setIsChestOpened(true);
     setIsMosaicPuzzleOpen(false);
-    setInventory((prev) => [...prev, ALL_DISCOVERABLE_ITEMS.recipe_book]);
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.chapter === 4 ? { ...q, isCompleted: true, isActive: false } : q
-      )
+    const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.recipe_book];
+    setInventory(newInv);
+
+    const updatedQuests = quests.map((q) =>
+      q.chapter === 4 ? { ...q, isCompleted: true, isActive: false } : q
     );
+    setQuests(updatedQuests);
 
     setIsStoryEndingOpen(true);
-  };
-
-  const handleResetGame = () => {
-    setCurrentChapter(1);
-    setUnlockedChapters([1]);
-    setCurrentScene('CH1_BEN_THANH');
-    setInventory(INITIAL_ITEMS);
-    setSelectedItemId('sugarcane_juice');
-    setQuests(INITIAL_QUESTS);
-    setCurrentDialogue(DIALOGUE_DATABASE['guard_intro']);
-    setIsJuicePressed(false);
-    setIsFuseboxRepaired(false);
-    setHasPliers(false);
-    setIsMailboxUnlocked(false);
-    setHasTweezer(false);
-    setHasRareStamp(false);
-    setHasMagnifier(false);
-    setIsGuitarTuned(false);
-    setIsRadioTuned(false);
-    setHasScissors(false);
-    setHasThread(false);
-    setHasRadioKnob(false);
-    setHasHomeKey(false);
-    setIsHuTieuCooked(false);
-    setIsChestOpened(false);
-    setHasMosaicTile(false);
-    setIsSugarcaneModalOpen(false);
-    setIsWirePuzzleOpen(false);
-    setIsDialPuzzleOpen(false);
-    setIsGuitarModalOpen(false);
-    setIsRadioPuzzleOpen(false);
-    setIsHuTieuModalOpen(false);
-    setIsMosaicPuzzleOpen(false);
-    setIsChapterOverlayOpen(false);
-    setIsChapterMapOpen(false);
-    setIsQuestLogOpen(false);
-    setIsStoryEndingOpen(false);
+    saveProgressToCloud(4, 'CH4_ALLEY_HOUSE', newInv, { isChestOpened: true }, updatedQuests);
   };
 
   const currentChapterInfo =
     CHAPTERS_INFO.find((c) => c.id === currentChapter) || CHAPTERS_INFO[0];
   const activeQuestsCount = quests.filter((q) => q.isActive && !q.isCompleted).length;
+
+  // =========================================================================
+  // RENDER FLOW: BOOT -> MAIN MENU -> GAME PLAYING
+  // =========================================================================
+  if (gameState === 'boot') {
+    return <BootScene statusText={bootStatusText} progress={bootProgress} />;
+  }
+
+  if (gameState === 'main_menu') {
+    return (
+      <MainMenuScene
+        guestUid={guestUid}
+        saveData={cloudSaveData}
+        isLoadingSave={isLoadingSave}
+        isMuted={isMuted}
+        onToggleMute={handleToggleMute}
+        onStartNewGame={handleStartNewGame}
+        onContinueGame={handleContinueGame}
+        onSelectChapter={handleSelectChapterFromMenu}
+      />
+    );
+  }
 
   return (
     <div className="w-screen h-screen bg-[#0c0806] flex items-center justify-center p-0 md:p-3 overflow-hidden select-none font-ui-label">
@@ -703,7 +1118,9 @@ export default function App() {
             setInventoryLayout((prev) => (prev === 'right' ? 'bottom' : 'right'))
           }
           onOpenQuestLog={() => setIsQuestLogOpen(true)}
-          onResetGame={handleResetGame}
+          onResetGame={handleStartNewGame}
+          onGoHome={handleGoHome}
+          isSaving={isSaving}
           activeQuestsCount={activeQuestsCount}
         />
 
@@ -727,6 +1144,11 @@ export default function App() {
               isMailboxUnlocked={isMailboxUnlocked}
               isRadioTuned={isRadioTuned}
               isChestOpened={isChestOpened}
+              hasScissors={hasScissors}
+              isGuitarTuned={isGuitarTuned}
+              hasHomeKey={hasHomeKey}
+              isHuTieuCooked={isHuTieuCooked}
+              hasMosaicTile={hasMosaicTile}
               onOpenMap={() => setIsChapterMapOpen(true)}
             />
 
@@ -772,6 +1194,8 @@ export default function App() {
         <GameStatusBar
           fps={60}
           locationName={`${currentChapterInfo.locationVi} (${currentChapterInfo.year}) • ${currentChapterInfo.titleVi}`}
+          guestUid={guestUid}
+          isSaving={isSaving}
         />
 
         {/* 1. Sugarcane Juice Press Modal (Ch.1) */}
@@ -870,7 +1294,7 @@ export default function App() {
         {/* 12. Grand Finale Ending Modal */}
         <StoryEndingModal
           isOpen={isStoryEndingOpen}
-          onRestart={handleResetGame}
+          onRestart={handleStartNewGame}
           onOpenMap={() => {
             setIsStoryEndingOpen(false);
             setIsChapterMapOpen(true);

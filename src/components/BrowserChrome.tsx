@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, BookOpen, RefreshCw, Layers, ShieldCheck, ExternalLink } from 'lucide-react';
+import { Volume2, VolumeX, BookOpen, RefreshCw, Layers, ShieldCheck, Home, Cloud, CheckCircle2 } from 'lucide-react';
 import { sound } from '../utils/audio';
 
 interface BrowserChromeProps {
@@ -10,6 +10,8 @@ interface BrowserChromeProps {
   onToggleLayout: () => void;
   onOpenQuestLog: () => void;
   onResetGame: () => void;
+  onGoHome?: () => void;
+  isSaving?: boolean;
   activeQuestsCount: number;
 }
 
@@ -21,6 +23,8 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
   onToggleLayout,
   onOpenQuestLog,
   onResetGame,
+  onGoHome,
+  isSaving = false,
   activeQuestsCount,
 }) => {
   return (
@@ -29,9 +33,23 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
       <div className="h-12 px-4 flex items-center justify-between gap-3 text-[#d7c3ae] font-ui-label">
         {/* Window controls */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#d93a30] hover:opacity-80 cursor-pointer shadow-sm" title="Đóng" onClick={onResetGame} />
-          <div className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#d99f1d] hover:opacity-80 cursor-pointer shadow-sm" title="Thu nhỏ" onClick={onToggleLayout} />
-          <div className="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1fa733] hover:opacity-80 cursor-pointer shadow-sm" title="Toàn màn hình" />
+          {onGoHome && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onGoHome();
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-[#1e0f0a] hover:bg-[#2e1811] text-[#fcd34d] border border-[#a16207] rounded text-xs font-bold transition-all shadow cursor-pointer mr-1"
+              title="Về Màn Hình Chính (MainMenu)"
+            >
+              <Home className="w-3.5 h-3.5 text-[#f59e0b]" />
+              <span className="hidden sm:inline">MENU CHÍNH</span>
+            </button>
+          )}
+
+          <div className="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#d93a30] hover:opacity-80 cursor-pointer shadow-sm" title="Về Menu" onClick={onGoHome || onResetGame} />
+          <div className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#d99f1d] hover:opacity-80 cursor-pointer shadow-sm" title="Đổi giao diện túi đồ" onClick={onToggleLayout} />
+          <div className="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1fa733] hover:opacity-80 cursor-pointer shadow-sm" title="Trạng thái" />
           <span className="hidden sm:inline-block ml-2 text-xs text-[#ffc67c] font-bold uppercase tracking-wider">
             SAIGON MEMORY
           </span>
@@ -43,9 +61,14 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
           <span className="text-[#fadcd5] font-dialogue-text truncate flex-1">
             {url}
           </span>
-          <span className="hidden md:inline-flex items-center text-[10px] text-[#ffc67c] bg-[#1e100c] px-1.5 py-0.5 rounded border border-[#524434]">
-            1992
-          </span>
+
+          {/* Cloud Auto-save indicator */}
+          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#180b07] border border-[#524434] rounded text-[10px]">
+            <Cloud className={`w-3 h-3 ${isSaving ? 'text-[#f59e0b] animate-bounce' : 'text-[#38bdf8]'}`} />
+            <span className="text-[#a88267] hidden md:inline">
+              {isSaving ? 'Đang lưu...' : 'Firestore'}
+            </span>
+          </div>
         </div>
 
         {/* Quick Toolbar Actions */}
@@ -57,8 +80,8 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
               sound.playClick();
               onOpenQuestLog();
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#271814] hover:bg-[#43302c] border border-[#9f8e7a] rounded text-[#ffc67c] transition-colors relative text-xs"
-            title="Mở Sổ Tay Nhiệm Vụ"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-[#271814] hover:bg-[#43302c] border border-[#9f8e7a] rounded text-[#ffc67c] transition-colors relative text-xs cursor-pointer"
+            title="Mở Sổ Tay Nhiệm Vụ (Q)"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#ffc67c]" />
             <span className="hidden sm:inline font-bold">Nhiệm Vụ</span>
@@ -73,7 +96,7 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
               sound.playClick();
               onToggleLayout();
             }}
-            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#d7c3ae] transition-colors"
+            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#d7c3ae] transition-colors cursor-pointer"
             title={`Chuyển giao diện túi đồ (Đang: ${inventoryLayout === 'right' ? 'Bên phải' : 'Thanh dưới'})`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -85,10 +108,10 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
               onToggleMute();
               sound.playClick();
             }}
-            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#ffc67c] transition-colors"
+            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#ffc67c] transition-colors cursor-pointer"
             title={isMuted ? "Bật âm thanh" : "Tắt âm thanh"}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-[#ffb4ab]" /> : <Volume2 className="w-3.5 h-3.5" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-[#ffb4ab]" /> : <Volume2 className="w-3.5 h-3.5 text-[#22c55e]" />}
           </button>
 
           {/* Reset */}
@@ -97,7 +120,7 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
               sound.playClick();
               onResetGame();
             }}
-            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#d7c3ae] transition-colors"
+            className="p-1.5 bg-[#271814] hover:bg-[#43302c] border border-[#524434] rounded text-[#d7c3ae] transition-colors cursor-pointer"
             title="Chơi lại từ đầu"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -111,24 +134,28 @@ export const BrowserChrome: React.FC<BrowserChromeProps> = ({
 export const GameStatusBar: React.FC<{
   fps?: number;
   locationName?: string;
-}> = ({ fps = 60, locationName = "Cửa Nam Chợ Bến Thành, Quận 1" }) => {
+  guestUid?: string | null;
+  isSaving?: boolean;
+}> = ({ fps = 60, locationName = "Cửa Nam Chợ Bến Thành, Quận 1", guestUid, isSaving }) => {
   return (
     <div className="h-7 bg-[#180b07] border-t-2 border-[#524434] flex items-center justify-between px-4 text-[11px] text-[#9f8e7a] font-ui-label shrink-0 z-30 select-none">
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-1.5 text-[#a1d494]">
           <span className="w-2 h-2 rounded-full bg-[#27c93f] animate-pulse" />
-          Đang kết nối
+          {isSaving ? 'Đang lưu tự động...' : 'Đã kết nối Firebase'}
         </span>
         <span className="hidden sm:inline text-[#d7c3ae]">
           {locationName}
         </span>
-        <span className="hidden md:inline text-[#9f8e7a]">
-          Tọa độ: 10.7725° N, 106.6980° E
-        </span>
+        {guestUid && (
+          <span className="hidden lg:inline text-[#fcd34d] font-mono">
+            Khách: {guestUid.substring(0, 8)}...
+          </span>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
-        <span className="text-[#ffc67c]">Thời gian: 12:00 PM</span>
+        <span className="text-[#ffc67c]">1968 - 1995</span>
         <span className="text-[#d7c3ae]">FPS: {fps}</span>
         <span className="hidden sm:inline text-[#9f8e7a]">MEM: 124MB</span>
       </div>

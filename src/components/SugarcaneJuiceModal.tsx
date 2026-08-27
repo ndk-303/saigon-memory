@@ -118,7 +118,7 @@ export const SugarcaneJuiceModal: React.FC<SugarcaneJuiceModalProps> = ({
           <div className="flex items-center gap-2">
             <Droplets className="w-6 h-6 text-[#a1d494] animate-bounce" />
             <h2 className="font-ui-label text-base sm:text-lg text-[#ffc67c] font-bold uppercase tracking-wider">
-              XE NƯỚC MÍA QUAY TAY CHỢ BẾN THÀNH
+              XE NƯỚC MÍA CHỢ BẾN THÀNH
             </h2>
           </div>
           <button
@@ -175,7 +175,7 @@ export const SugarcaneJuiceModal: React.FC<SugarcaneJuiceModalProps> = ({
 
             <span className="text-[11px] text-[#ffc67c] font-ui-label mt-2 font-bold flex items-center gap-1">
               <RefreshCw className={`w-3 h-3 ${isDragging ? 'animate-spin' : ''}`} />
-              Bánh Đà Quay Tay
+              Bánh Đà
             </span>
           </div>
 
