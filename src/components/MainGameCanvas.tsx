@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MessageSquare, Sparkles, MapPin, Eye, DoorOpen } from 'lucide-react';
-import { PointOfInterest, SceneId, ChapterId } from '../types';
+import { PointOfInterest, SceneId, ChapterId, ItemId } from '../types';
 import { CHAPTER_POIS, CHAPTERS_INFO } from '../data/gameData';
 import { sound } from '../utils/audio';
 import { Chapter2Scene } from './scenes/Chapter2Scene';
@@ -9,6 +9,7 @@ import { Chapter4Scene } from './scenes/Chapter4Scene';
 
 interface MainGameCanvasProps {
   onSelectPOI: (poi: PointOfInterest) => void;
+  onDropOnPOI?: (action: string, itemId: ItemId) => void;
   currentChapter: ChapterId;
   currentScene: SceneId;
   onChangeScene: (scene: SceneId) => void;
@@ -29,6 +30,7 @@ interface MainGameCanvasProps {
 
 export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
   onSelectPOI,
+  onDropOnPOI,
   currentChapter,
   currentScene,
   onChangeScene,
@@ -98,6 +100,7 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
       {currentChapter === 2 ? (
         <Chapter2Scene
           onSelectPOI={onSelectPOI}
+          onDropOnPOI={onDropOnPOI}
           isMailboxUnlocked={isMailboxUnlocked}
           hasTweezer={hasTweezer}
           hasRareStamp={hasRareStamp}
@@ -107,6 +110,7 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
         /* CHAPTER 3 CUSTOM DEDICATED SCENE (Chung Cư Tôn Thất Đạm 1985) */
         <Chapter3Scene
           onSelectPOI={onSelectPOI}
+          onDropOnPOI={onDropOnPOI}
           isRadioTuned={isRadioTuned}
           isGuitarTuned={isGuitarTuned}
           hasScissors={hasScissors}
@@ -115,6 +119,7 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
         /* CHAPTER 4 CUSTOM DEDICATED SCENE (Hẻm Hoa Giấy Quận 3 1995) */
         <Chapter4Scene
           onSelectPOI={onSelectPOI}
+          onDropOnPOI={onDropOnPOI}
           hasHomeKey={hasHomeKey}
           isHuTieuCooked={isHuTieuCooked}
           isChestOpened={isChestOpened}
@@ -185,6 +190,18 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
                   sound.playBlip(380, 0.02);
                 }}
                 onMouseLeave={() => setHoveredPoi(null)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setHoveredPoi(poi);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setHoveredPoi(null);
+                  const sourceId = e.dataTransfer.getData('text/plain') as ItemId;
+                  if (sourceId && onDropOnPOI) {
+                    onDropOnPOI(poi.targetAction, sourceId);
+                  }
+                }}
                 className="absolute z-20 cursor-pointer flex items-center justify-center transition-transform"
                 style={{
                   left: `${poi.x}%`,

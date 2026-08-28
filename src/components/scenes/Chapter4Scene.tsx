@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Search, Sparkles, UtensilsCrossed, DoorOpen, Box, Key, Flame } from 'lucide-react';
-import { PointOfInterest } from '../../types';
+import { PointOfInterest, ItemId } from '../../types';
 import { sound } from '../../utils/audio';
 
 interface Chapter4SceneProps {
   onSelectPOI: (poi: PointOfInterest) => void;
+  onDropOnPOI?: (action: string, itemId: ItemId) => void;
   hasHomeKey?: boolean;
   isHuTieuCooked?: boolean;
   isChestOpened?: boolean;
@@ -13,6 +14,7 @@ interface Chapter4SceneProps {
 
 export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
   onSelectPOI,
+  onDropOnPOI,
   hasHomeKey = false,
   isHuTieuCooked = false,
   isChestOpened = false,
@@ -36,6 +38,15 @@ export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
     });
   };
 
+  const handleDrop = (e: React.DragEvent, action: string) => {
+    e.preventDefault();
+    setHoveredTarget(null);
+    const sourceId = e.dataTransfer.getData('text/plain') as ItemId;
+    if (sourceId && onDropOnPOI) {
+      onDropOnPOI(action, sourceId);
+    }
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden select-none bg-[#1e130c] flex items-center justify-center">
       {/* 16-bit retro pixel art game scene from Stitch */}
@@ -57,6 +68,8 @@ export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_kitchen', 'ch4_kitchen', 'Bếp Nấu Hủ Tiếu Gia Truyền', 'gear')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('kitchen'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_kitchen')}
           title="Bếp Nấu Hủ Tiếu Gia Truyền"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -101,6 +114,8 @@ export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_gate', 'ch4_gate', 'Cổng Nhà Cổ Hẻm Hoa Giấy', 'door')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('gate'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_gate')}
           title="Cổng Nhà Cổ Hẻm Hoa Giấy"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -145,6 +160,8 @@ export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_tea_cabinet', 'ch4_tea_cabinet', 'Tủ Chè Khảm Xà Cừ', 'search')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('tea'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_tea_cabinet')}
           title="Tủ Chè Khảm Xà Cừ"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -185,6 +202,8 @@ export const Chapter4Scene: React.FC<Chapter4SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_chest', 'ch4_chest', 'Rương Gia Bảo Mosaic 3x3', 'gear')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('chest'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_chest')}
           title="Rương Gia Bảo Mosaic 3x3"
         >
           <div className="relative flex items-center justify-center group/poi">

@@ -651,6 +651,109 @@ export default function App() {
     }, 450);
   };
 
+  const handleDropOnPOI = (action: string, itemId: string) => {
+    let handled = false;
+    
+    if (action === 'talk_auntie' && (itemId === 'coin' || itemId === 'coin_polished')) {
+      const newItem = ALL_DISCOVERABLE_ITEMS.sugarcane_juice;
+      setInventory(prev => [...prev.filter(i => i.id !== itemId), newItem]);
+      sound.playSelect();
+      showToast('✨ Nhận được Ly Nước Mía Tắc!');
+      setCurrentDialogue({
+        id: 'auntie_give_juice',
+        speaker: 'Cô Út',
+        speakerTitle: 'CÔ ÚT',
+        avatarType: 'auntie',
+        text: 'Đồng xu này quý lắm nha! Cho cháu ly nước mía nè, lấy sức đi tìm đồ nhe.'
+      });
+      handled = true;
+    } else if (action === 'talk_guard' && itemId === 'sugarcane_juice') {
+      const newItem = ALL_DISCOVERABLE_ITEMS.rusty_key;
+      setInventory(prev => [...prev.filter(i => i.id !== itemId), newItem]);
+      sound.playSelect();
+      showToast('✨ Nhận được Chìa Khóa Rỉ Sét!');
+      setCurrentDialogue({
+        id: 'guard_give_key',
+        speaker: 'Bác Bảo Vệ',
+        speakerTitle: 'BÁC BẢO VỆ',
+        avatarType: 'guard',
+        text: 'Khát quá, cảm ơn cháu nha! Đây, chìa khóa tủ điện đây, cháu tự mở xem sao.'
+      });
+      handled = true;
+    } else if (action === 'inspect_fusebox' && itemId === 'rusty_key') {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      sound.playSelect();
+      setIsWirePuzzleOpen(true);
+      handled = true;
+    } else if (action === 'inspect_floor_crack' && itemId === 'tweezer') {
+      if (!hasRareStamp) {
+        setHasRareStamp(true);
+        const newItem = ALL_DISCOVERABLE_ITEMS.rare_stamp;
+        setInventory(prev => [...prev, newItem]);
+        sound.playSelect();
+        showToast('✨ Nhận được Con Tem Cổ!');
+        setCurrentDialogue({
+          id: 'stamp_picked',
+          speaker: 'Linh',
+          speakerTitle: 'LINH',
+          avatarType: 'mai',
+          text: 'Khéo léo dùng que kẹp, mình đã gắp được Con Tem Cổ 1970 còn nguyên vẹn! Mau mang lại cho Peter.',
+        });
+        saveProgressToCloud(undefined, undefined, undefined, { hasRareStamp: true });
+        handled = true;
+      }
+    } else if (action === 'talk_peter' && itemId === 'rare_stamp') {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      setHasMagnifier(true);
+      const newItem = ALL_DISCOVERABLE_ITEMS.magnifier;
+      setInventory(prev => [...prev.filter(i => i.id !== itemId), newItem]);
+      sound.playSelect();
+      showToast('✨ Nhận được Kính Lúp Quang Học!');
+      setCurrentDialogue({
+        id: 'peter_reward',
+        speaker: 'Peter',
+        speakerTitle: 'PETER',
+        avatarType: 'peter',
+        text: 'Oh my God! Bạn tìm thấy nó rồi! Cảm ơn bạn rất nhiều. Hãy lấy chiếc Kính Lúp này xem như quà tạ ơn nhé!'
+      });
+      saveProgressToCloud(undefined, undefined, undefined, { hasMagnifier: true });
+      handled = true;
+    } else if (action === 'talk_tailor' && itemId === 'scissors') {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      setHasThread(true);
+      const newItem = ALL_DISCOVERABLE_ITEMS.nylon_thread;
+      setInventory(prev => [...prev.filter(i => i.id !== itemId), newItem]);
+      sound.playSelect();
+      showToast('✨ Nhận được Cuộn Chỉ Dù!');
+      setCurrentDialogue({
+        id: 'tailor_thanks',
+        speaker: 'Cô Năm Thợ May',
+        speakerTitle: 'CÔ NĂM THỢ MAY',
+        avatarType: 'tailor',
+        text: 'Cảm ơn con nhe! Kéo này bén lắm. Lấy cuộn chỉ dù này đi, biết đâu con dùng được việc gì.'
+      });
+      saveProgressToCloud(undefined, undefined, undefined, { hasThread: true });
+      handled = true;
+    } else if (action === 'talk_hoang' && (itemId === 'nylon_thread' || itemId === 'guitar_string')) {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      setIsGuitarModalOpen(true);
+      handled = true;
+    } else if (action === 'inspect_radio' && itemId === 'radio_knob') {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      setIsRadioPuzzleOpen(true);
+      handled = true;
+    } else if (action === 'inspect_chest' && itemId === 'mosaic_tile') {
+      setInventory(prev => prev.filter(i => i.id !== itemId));
+      setIsMosaicPuzzleOpen(true);
+      handled = true;
+    }
+
+    if (!handled) {
+      sound.playCombineFail();
+      showToast('❌ Không thể dùng vật phẩm này ở đây!');
+    }
+  };
+
   // POI Interaction Router
   const handleSelectPOI = (poi: PointOfInterest) => {
     switch (poi.targetAction) {
@@ -658,10 +761,14 @@ export default function App() {
       case 'talk_guard':
         if (isFuseboxRepaired) {
           setCurrentDialogue(DIALOGUE_DATABASE['guard_after_key']);
-        } else if (hasPliers) {
-          setCurrentDialogue(DIALOGUE_DATABASE['guard_advice']);
         } else {
-          setCurrentDialogue(DIALOGUE_DATABASE['guard_intro']);
+          setCurrentDialogue({
+            id: 'guard_block',
+            speaker: 'Bác Bảo Vệ',
+            speakerTitle: 'BÁC BẢO VỆ',
+            avatarType: 'guard',
+            text: 'Bác đang khát nước, không rảnh mở cửa tủ điện cho cháu đâu.'
+          });
         }
         break;
 
@@ -669,7 +776,13 @@ export default function App() {
         if (isFuseboxRepaired) {
           setCurrentDialogue(DIALOGUE_DATABASE['fusebox_fixed']);
         } else {
-          setCurrentDialogue(DIALOGUE_DATABASE['fusebox_locked']);
+          setCurrentDialogue({
+            id: 'fusebox_block',
+            speaker: 'Linh',
+            speakerTitle: 'LINH',
+            avatarType: 'mai',
+            text: 'Ổ khóa rỉ sét quá, mình không dùng tay không mở được.'
+          });
         }
         break;
 
@@ -687,9 +800,7 @@ export default function App() {
 
       // CHAPTER 2 (BƯU ĐIỆN)
       case 'talk_peter':
-        if (hasRareStamp && !hasMagnifier) {
-          setCurrentDialogue(DIALOGUE_DATABASE['peter_reward']);
-        } else if (hasMagnifier) {
+        if (hasMagnifier) {
           setCurrentDialogue({
             id: 'peter_done',
             speaker: 'Peter',
@@ -740,19 +851,6 @@ export default function App() {
             avatarType: 'mai',
             text: 'Khe nứt sàn gạch bông giờ đã sạch sẽ.',
           });
-        } else if (hasTweezer) {
-          setHasRareStamp(true);
-          const newInv = [...inventory, ALL_DISCOVERABLE_ITEMS.rare_stamp];
-          setInventory(newInv);
-          sound.playSelect();
-          setCurrentDialogue({
-            id: 'stamp_picked',
-            speaker: 'Linh',
-            speakerTitle: 'LINH',
-            avatarType: 'mai',
-            text: 'Khéo léo dùng que kẹp, mình đã gắp được Con Tem Cổ 1970 còn nguyên vẹn! Mau mang lại cho Peter.',
-          });
-          saveProgressToCloud(undefined, undefined, newInv, { hasRareStamp: true });
         } else {
           setCurrentDialogue({
             id: 'stamp_stuck',
@@ -768,15 +866,24 @@ export default function App() {
         if (isMailboxUnlocked) {
           setCurrentDialogue(DIALOGUE_DATABASE['mailbox_solved']);
         } else {
-          setCurrentDialogue(DIALOGUE_DATABASE['mailbox_locked']);
+          const hasSeenPassword = inventory.some((i) => i.id === 'notebook_decoded');
+          if (hasSeenPassword) {
+            setIsDialPuzzleOpen(true);
+          } else {
+            setCurrentDialogue({
+              id: 'mailbox_block',
+              speaker: 'Linh',
+              speakerTitle: 'LINH',
+              avatarType: 'mai',
+              text: 'Khóa 4 số... Mình không biết mật mã là gì. Phải soi Sổ Tay trước đã.'
+            });
+          }
         }
         break;
 
       // CHAPTER 3 (CHUNG CƯ TÔN THẤT ĐẠM)
       case 'talk_tailor':
-        if (hasScissors && !hasThread) {
-          setCurrentDialogue(DIALOGUE_DATABASE['tailor_give_scissors']);
-        } else if (hasThread) {
+        if (hasThread) {
           setCurrentDialogue({
             id: 'tailor_thanks',
             speaker: 'Cô Năm Thợ May',
@@ -815,9 +922,7 @@ export default function App() {
         break;
 
       case 'talk_hoang':
-        if (inventory.some((i) => i.id === 'guitar_string') && !hasRadioKnob) {
-          setCurrentDialogue(DIALOGUE_DATABASE['hoang_intro']);
-        } else if (hasRadioKnob) {
+        if (hasRadioKnob) {
           setCurrentDialogue({
             id: 'hoang_jamming',
             speaker: 'Hoàng',
@@ -834,7 +939,13 @@ export default function App() {
         if (isRadioTuned) {
           setCurrentDialogue(DIALOGUE_DATABASE['radio_solved']);
         } else {
-          setCurrentDialogue(DIALOGUE_DATABASE['radio_locked']);
+          setCurrentDialogue({
+            id: 'radio_block',
+            speaker: 'Linh',
+            speakerTitle: 'LINH',
+            avatarType: 'mai',
+            text: 'Mất núm xoay rồi, không vặn tần số được.'
+          });
         }
         break;
 
@@ -884,7 +995,13 @@ export default function App() {
         if (isChestOpened) {
           setCurrentDialogue(DIALOGUE_DATABASE['chest_solved']);
         } else {
-          setCurrentDialogue(DIALOGUE_DATABASE['chest_locked']);
+          setCurrentDialogue({
+            id: 'chest_block',
+            speaker: 'Linh',
+            speakerTitle: 'LINH',
+            avatarType: 'mai',
+            text: 'Bàn xếp hình bị thiếu một mảnh khảm (tile), không thể trượt được.'
+          });
         }
         break;
 
@@ -1137,6 +1254,7 @@ export default function App() {
           <div className="relative flex-1 h-full flex flex-col overflow-hidden">
             <MainGameCanvas
               onSelectPOI={handleSelectPOI}
+              onDropOnPOI={handleDropOnPOI}
               currentChapter={currentChapter}
               currentScene={currentScene}
               onChangeScene={setCurrentScene}

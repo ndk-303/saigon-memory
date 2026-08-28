@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { PointOfInterest } from '../../types';
+import { PointOfInterest, ItemId } from '../../types';
 import { sound } from '../../utils/audio';
 import { Search, Sparkles, MessageSquare } from 'lucide-react';
 
 interface Chapter2SceneProps {
   onSelectPOI: (poi: PointOfInterest) => void;
+  onDropOnPOI?: (action: string, itemId: ItemId) => void;
   isMailboxUnlocked: boolean;
   hasTweezer?: boolean;
   hasRareStamp?: boolean;
@@ -13,6 +14,7 @@ interface Chapter2SceneProps {
 
 export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
   onSelectPOI,
+  onDropOnPOI,
   isMailboxUnlocked,
   hasTweezer = false,
   hasRareStamp = false,
@@ -36,6 +38,15 @@ export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
     });
   };
 
+  const handleDrop = (e: React.DragEvent, action: string) => {
+    e.preventDefault();
+    setHoveredTarget(null);
+    const sourceId = e.dataTransfer.getData('text/plain') as ItemId;
+    if (sourceId && onDropOnPOI) {
+      onDropOnPOI(action, sourceId);
+    }
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden select-none bg-[#1e130c] flex items-center justify-center">
       {/* 16-bit retro pixel art game scene from Stitch */}
@@ -56,6 +67,8 @@ export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('talk_peter', 'peter', 'Du Khách Peter', 'talk')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('peter'); }}
+          onDrop={(e) => handleDrop(e, 'talk_peter')}
           title="Du Khách Peter"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -94,6 +107,8 @@ export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_mailbox_72', 'mailbox_72', 'Hòm Thư Số 72', 'gear')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('mailbox'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_mailbox_72')}
           title="Hòm Thư Số 72"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -135,6 +150,8 @@ export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
             }}
             onMouseLeave={() => setHoveredTarget(null)}
             onClick={() => handleTrigger('inspect_floor_crack', 'floor_stamp', 'Kẽ Gạch & Tem', 'search')}
+            onDragOver={(e) => { e.preventDefault(); setHoveredTarget('stamp'); }}
+            onDrop={(e) => handleDrop(e, 'inspect_floor_crack')}
             title="Kẽ Gạch & Tem Cổ"
           >
             <div className="relative flex items-center justify-center group/poi">
@@ -174,6 +191,8 @@ export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_souvenir', 'souvenir_table', 'Bàn Viết Thư Bưu Điện', 'search')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('desk'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_souvenir')}
           title="Bàn Viết Thư Bưu Điện"
         >
           <div className="relative flex items-center justify-center group/poi">

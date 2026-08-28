@@ -7,6 +7,7 @@ export type ItemId =
   | 'sugarcane_juice_empty'
   | 'feather_duster'
   | 'pliers'
+  | 'rusty_key'
   | 'antique_key'
   | 'memory_photo'
   | 'tweezer'

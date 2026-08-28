@@ -67,12 +67,12 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({
 
     if (layout === 'right') {
       const hasOverflow = el.scrollHeight > el.clientHeight;
-      setCanScrollUp(el.scrollTop > 5);
-      setCanScrollDown(hasOverflow && el.scrollTop + el.clientHeight < el.scrollHeight - 5);
+      setCanScrollUp(el.scrollTop > 1);
+      setCanScrollDown(hasOverflow && Math.ceil(el.scrollTop + el.clientHeight) < el.scrollHeight - 1);
     } else {
       const hasOverflow = el.scrollWidth > el.clientWidth;
-      setCanScrollLeft(el.scrollLeft > 5);
-      setCanScrollRight(hasOverflow && el.scrollLeft + el.clientWidth < el.scrollWidth - 5);
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(hasOverflow && Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth - 1);
     }
   };
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Sparkles, Music, Scissors, Radio as RadioIcon, Search, MessageSquare } from 'lucide-react';
-import { PointOfInterest } from '../../types';
+import { PointOfInterest, ItemId } from '../../types';
 import { sound } from '../../utils/audio';
 
 interface Chapter3SceneProps {
   onSelectPOI: (poi: PointOfInterest) => void;
+  onDropOnPOI?: (action: string, itemId: ItemId) => void;
   isRadioTuned: boolean;
   hasGuitarString?: boolean;
   isGuitarTuned?: boolean;
@@ -13,6 +14,7 @@ interface Chapter3SceneProps {
 
 export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
   onSelectPOI,
+  onDropOnPOI,
   isRadioTuned,
   isGuitarTuned = false,
   hasScissors = false,
@@ -33,6 +35,15 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
       description: '',
       targetAction: action,
     });
+  };
+
+  const handleDrop = (e: React.DragEvent, action: string) => {
+    e.preventDefault();
+    setHoveredTarget(null);
+    const sourceId = e.dataTransfer.getData('text/plain') as ItemId;
+    if (sourceId && onDropOnPOI) {
+      onDropOnPOI(action, sourceId);
+    }
   };
 
   return (
@@ -56,6 +67,8 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('talk_tailor', 'ch3_tailor', 'Cô Năm Thợ May', 'talk')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('tailor'); }}
+          onDrop={(e) => handleDrop(e, 'talk_tailor')}
           title="Cô Năm Thợ May"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -94,6 +107,8 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_wool_basket', 'ch3_wool', 'Giỏ Len Ban Công', 'search')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('wool'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_wool_basket')}
           title="Giỏ Len Ban Công"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -138,6 +153,8 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('talk_hoang', 'ch3_hoang', 'Hoàng Nhạc Sĩ', 'talk')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('hoang'); }}
+          onDrop={(e) => handleDrop(e, 'talk_hoang')}
           title="Hoàng Nhạc Sĩ"
         >
           <div className="relative flex items-center justify-center group/poi">
@@ -178,6 +195,8 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
           }}
           onMouseLeave={() => setHoveredTarget(null)}
           onClick={() => handleTrigger('inspect_radio', 'ch3_radio', 'Đài Radio Cổ National', 'gear')}
+          onDragOver={(e) => { e.preventDefault(); setHoveredTarget('radio'); }}
+          onDrop={(e) => handleDrop(e, 'inspect_radio')}
           title="Đài Radio Cổ National"
         >
           <div className="relative flex items-center justify-center group/poi">

@@ -116,22 +116,6 @@ export const INITIAL_ITEMS: InventoryItem[] = [
     },
   },
   {
-    id: 'sugarcane_juice',
-    name: 'Sugarcane Juice',
-    nameVi: 'Ly Nước Mía Tắc',
-    descriptionVi: 'Ly nước mía lau vắt tắc thơm lừng, nhiều đá mát lạnh giải nhiệt mùa hè Sài Gòn.',
-    loreVi: 'Món nước giải khát gắn liền với tuổi thơ bao thế hệ quanh khu chợ Bến Thành.',
-    iconType: 'juice',
-    iconColor: '#90c283',
-    chapter: 1,
-    inspectData: {
-      frontDetailsVi: 'Ly thủy tinh khía dọc đặc trưng, nổi bật 2 lát tắc vàng ươm và đá bào.',
-      backDetailsVi: 'Thành ly đọng những giọt sương lạnh buốt xua tan cái nắng 35 độ Sài Gòn.',
-      isDirty: false,
-      hasMechanism: false,
-    },
-  },
-  {
     id: 'notebook',
     name: 'Memory Notebook',
     nameVi: 'Sổ Tay Ký Ức Của Ông',
@@ -154,6 +138,37 @@ export const INITIAL_ITEMS: InventoryItem[] = [
 ];
 
 export const ALL_DISCOVERABLE_ITEMS: Record<string, InventoryItem> = {
+  rusty_key: {
+    id: 'rusty_key',
+    name: 'Rusty Key',
+    nameVi: 'Chìa Khóa Rỉ Sét',
+    descriptionVi: 'Chìa khóa cũ rỉ sét, có thể dùng để mở ổ khóa của tủ điện.',
+    loreVi: 'Chìa khóa của Bác Bảo Vệ (Bác Ba) đưa cho, hơi cũ nhưng chắc vẫn xài tốt.',
+    iconType: 'key',
+    iconColor: '#9ca3af',
+    chapter: 1,
+    inspectData: {
+      frontDetailsVi: 'Lớp rỉ sét bám đầy các răng khóa.',
+      backDetailsVi: 'Số "03" được khắc chìm mờ ảo.',
+      isDirty: false,
+    },
+  },
+  sugarcane_juice: {
+    id: 'sugarcane_juice',
+    name: 'Sugarcane Juice',
+    nameVi: 'Ly Nước Mía Tắc',
+    descriptionVi: 'Ly nước mía lau vắt tắc thơm lừng, nhiều đá mát lạnh giải nhiệt mùa hè Sài Gòn.',
+    loreVi: 'Món nước giải khát gắn liền với tuổi thơ bao thế hệ quanh khu chợ Bến Thành.',
+    iconType: 'juice',
+    iconColor: '#90c283',
+    chapter: 1,
+    inspectData: {
+      frontDetailsVi: 'Ly thủy tinh khía dọc đặc trưng, nổi bật 2 lát tắc vàng ươm và đá bào.',
+      backDetailsVi: 'Thành ly đọng những giọt sương lạnh buốt xua tan cái nắng 35 độ Sài Gòn.',
+      isDirty: false,
+      hasMechanism: false,
+    },
+  },
   coin_polished: {
     id: 'coin_polished',
     name: 'Polished Silver Coin',
