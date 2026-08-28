@@ -594,6 +594,10 @@ class SoundManager {
     } catch {}
   }
 
+  playWrong() {
+    this.playCombineFail();
+  }
+
   playGuitarTuning(freq = 329.6) {
     if (this.isMuted) return;
     try {

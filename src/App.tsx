@@ -1149,6 +1149,9 @@ export default function App() {
               hasHomeKey={hasHomeKey}
               isHuTieuCooked={isHuTieuCooked}
               hasMosaicTile={hasMosaicTile}
+              hasTweezer={hasTweezer}
+              hasRareStamp={hasRareStamp}
+              hasMagnifier={hasMagnifier}
               onOpenMap={() => setIsChapterMapOpen(true)}
             />
 

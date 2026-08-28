@@ -3,6 +3,7 @@ import { Search, MessageSquare, Sparkles, MapPin, Eye, DoorOpen } from 'lucide-r
 import { PointOfInterest, SceneId, ChapterId } from '../types';
 import { CHAPTER_POIS, CHAPTERS_INFO } from '../data/gameData';
 import { sound } from '../utils/audio';
+import { Chapter2Scene } from './scenes/Chapter2Scene';
 import { Chapter3Scene } from './scenes/Chapter3Scene';
 import { Chapter4Scene } from './scenes/Chapter4Scene';
 
@@ -20,6 +21,9 @@ interface MainGameCanvasProps {
   hasHomeKey?: boolean;
   isHuTieuCooked?: boolean;
   hasMosaicTile?: boolean;
+  hasTweezer?: boolean;
+  hasRareStamp?: boolean;
+  hasMagnifier?: boolean;
   onOpenMap: () => void;
 }
 
@@ -37,6 +41,9 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
   hasHomeKey = false,
   isHuTieuCooked = false,
   hasMosaicTile = false,
+  hasTweezer = false,
+  hasRareStamp = false,
+  hasMagnifier = false,
   onOpenMap,
 }) => {
   const [hoveredPoi, setHoveredPoi] = useState<PointOfInterest | null>(null);
@@ -87,8 +94,17 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
 
   return (
     <div className="relative flex-1 w-full h-full overflow-hidden select-none bg-[#180b07] flex items-center justify-center group">
-      {/* CHAPTER 3 CUSTOM DEDICATED SCENE (Chung Cư Tôn Thất Đạm 1985) */}
-      {currentChapter === 3 ? (
+      {/* CHAPTER 2 CUSTOM DEDICATED SCENE (Bưu Điện Trung Tâm Sài Gòn 1968) */}
+      {currentChapter === 2 ? (
+        <Chapter2Scene
+          onSelectPOI={onSelectPOI}
+          isMailboxUnlocked={isMailboxUnlocked}
+          hasTweezer={hasTweezer}
+          hasRareStamp={hasRareStamp}
+          hasMagnifier={hasMagnifier}
+        />
+      ) : currentChapter === 3 ? (
+        /* CHAPTER 3 CUSTOM DEDICATED SCENE (Chung Cư Tôn Thất Đạm 1985) */
         <Chapter3Scene
           onSelectPOI={onSelectPOI}
           isRadioTuned={isRadioTuned}
@@ -105,7 +121,7 @@ export const MainGameCanvas: React.FC<MainGameCanvasProps> = ({
           hasMosaicTile={hasMosaicTile}
         />
       ) : (
-        /* CHAPTER 1 & CHAPTER 2 CLASSICAL CANVAS SCENES */
+        /* CHAPTER 1 CLASSICAL CANVAS SCENES */
         <>
           {/* Background Pixel Scene */}
           <div

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { Sparkles, Music, Scissors, Radio as RadioIcon, Search, MessageSquare } from 'lucide-react';
 import { PointOfInterest } from '../../types';
 import { sound } from '../../utils/audio';
+import { Search, Sparkles, MessageSquare } from 'lucide-react';
 
-interface Chapter3SceneProps {
+interface Chapter2SceneProps {
   onSelectPOI: (poi: PointOfInterest) => void;
-  isRadioTuned: boolean;
-  hasGuitarString?: boolean;
-  isGuitarTuned?: boolean;
-  hasScissors?: boolean;
+  isMailboxUnlocked: boolean;
+  hasTweezer?: boolean;
+  hasRareStamp?: boolean;
+  hasMagnifier?: boolean;
 }
 
-export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
+export const Chapter2Scene: React.FC<Chapter2SceneProps> = ({
   onSelectPOI,
-  isRadioTuned,
-  isGuitarTuned = false,
-  hasScissors = false,
+  isMailboxUnlocked,
+  hasTweezer = false,
+  hasRareStamp = false,
+  hasMagnifier = false,
 }) => {
   const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
 
@@ -23,7 +24,7 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
     sound.playClick();
     onSelectPOI({
       id,
-      chapter: 3,
+      chapter: 2,
       title,
       cursorType,
       x: 0,
@@ -39,24 +40,23 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
     <div className="relative w-full h-full overflow-hidden select-none bg-[#1e130c] flex items-center justify-center">
       {/* 16-bit retro pixel art game scene from Stitch */}
       <img
-        src="https://lh3.googleusercontent.com/aida/AEtjO1UfTqdbrfAvKK928uFo7H2HRVivBIIv1Zx81tZ8MkRp2STaObczCopPBNUBwtDeX9_sRyfjv1mK4yWIZXT9pZzIdVi-j0o6ix_YlfUAgNcbTGh-OXeoGNoBIo_ed6ZmpVLZTl0NCyC81pSKgDXAUWVDjgEq9r9AsHhAcPdHufA6HRJTYX_dosm5GuGFD3Goj6MnoCZZ0SKjI5qXIIQ2vDNWeCwHuwFJR8iuj7XE3MfzhMdfFMr-w2BerVDr"
-        alt="Chung Cư Tôn Thất Đạm 1985"
+        src="https://lh3.googleusercontent.com/aida/AEtjO1UL6x4M6OowzXhGd3atPfPYtVF-Puu6GQTqf_r2RWFMYuvidcorvakAdNpbKv9XZ0VD3jJAE88c2Amq3G2B3eLglosJ3P2Nzg3NexHG0z9kDGQA6OCIFxiynXuGiSrNWyBG35mj8_uUqj_UF-1Pj8E3tkhCeB6suTe_pz1d68VqVcf0NFo_ceG8rNAtD7-esFbSiZsQOB_iRgpxuRwPldOcdBJg2eZ83fegHLgt9d4x3KmJGBbp0PhUGiA-"
+        alt="Bưu Điện Trung Tâm Sài Gòn"
         className="w-full h-full object-cover pointer-events-none"
       />
 
       <div className="absolute inset-0 z-10 pointer-events-none">
-        
-        {/* 1. Cô Năm Thợ May Hotspot */}
+        {/* Peter's Hotspot */}
         <div
           className="absolute pointer-events-auto cursor-pointer flex items-center justify-center transition-transform z-20"
-          style={{ left: '26%', top: '54%', width: '6%', height: '10%' }}
+          style={{ left: '40%', top: '48%', width: '6%', height: '10%' }}
           onMouseEnter={() => {
-            setHoveredTarget('tailor');
+            setHoveredTarget('peter');
             sound.playBlip(380, 0.02);
           }}
           onMouseLeave={() => setHoveredTarget(null)}
-          onClick={() => handleTrigger('talk_tailor', 'ch3_tailor', 'Cô Năm Thợ May', 'talk')}
-          title="Cô Năm Thợ May"
+          onClick={() => handleTrigger('talk_peter', 'peter', 'Du Khách Peter', 'talk')}
+          title="Du Khách Peter"
         >
           <div className="relative flex items-center justify-center group/poi">
             {/* Radar pulse wave */}
@@ -65,7 +65,7 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
             {/* Center icon badge */}
             <div
               className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg transition-all ${
-                hoveredTarget === 'tailor'
+                hoveredTarget === 'peter'
                   ? 'scale-125 bg-[#f4a424] text-[#180b07] border-white shadow-[0_0_12px_#f4a424]'
                   : 'bg-[#2c1c18]/85 text-[#ffc67c] border-[#f4a424]'
               }`}
@@ -76,25 +76,25 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
             {/* Floating Tooltip Label */}
             <div
               className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
-                hoveredTarget === 'tailor' ? 'opacity-100' : 'opacity-0'
+                hoveredTarget === 'peter' ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              Nói chuyện với Cô Năm Thợ May
+              {hasMagnifier ? 'Du Khách Peter (Đã đổi Kính Lúp)' : 'Nói chuyện với Peter'}
             </div>
           </div>
         </div>
 
-        {/* 2. Giỏ Len Ban Công & Kéo Cắt Vải Hotspot */}
+        {/* Mailbox 72 Hotspot */}
         <div
           className="absolute pointer-events-auto cursor-pointer flex items-center justify-center transition-transform z-20"
-          style={{ left: '15%', top: '78%', width: '6%', height: '10%' }}
+          style={{ left: '72%', top: '38%', width: '6%', height: '10%' }}
           onMouseEnter={() => {
-            setHoveredTarget('wool');
-            sound.playBlip(360, 0.02);
+            setHoveredTarget('mailbox');
+            sound.playBlip(420, 0.02);
           }}
           onMouseLeave={() => setHoveredTarget(null)}
-          onClick={() => handleTrigger('inspect_wool_basket', 'ch3_wool', 'Giỏ Len Ban Công', 'search')}
-          title="Giỏ Len Ban Công"
+          onClick={() => handleTrigger('inspect_mailbox_72', 'mailbox_72', 'Hòm Thư Số 72', 'gear')}
+          title="Hòm Thư Số 72"
         >
           <div className="relative flex items-center justify-center group/poi">
             {/* Radar pulse wave */}
@@ -103,42 +103,78 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
             {/* Center icon badge */}
             <div
               className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg transition-all ${
-                hoveredTarget === 'wool'
+                hoveredTarget === 'mailbox'
                   ? 'scale-125 bg-[#f4a424] text-[#180b07] border-white shadow-[0_0_12px_#f4a424]'
-                  : hasScissors
+                  : isMailboxUnlocked
                   ? 'bg-[#14532d]/90 text-[#86efac] border-[#86efac]'
                   : 'bg-[#2c1c18]/85 text-[#ffc67c] border-[#f4a424]'
               }`}
             >
-              {hasScissors ? (
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+
+            {/* Floating Tooltip Label */}
+            <div
+              className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
+                hoveredTarget === 'mailbox' ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {isMailboxUnlocked ? 'Hòm Thư Số 72 (Đã Mở)' : 'Hòm Thư Số 72 (Mật Mã 4 Số)'}
+            </div>
+          </div>
+        </div>
+
+        {/* Stamp Floor Crack Hotspot */}
+        {!hasRareStamp && (
+          <div
+            className="absolute pointer-events-auto cursor-pointer flex items-center justify-center transition-transform z-20"
+            style={{ left: '44%', top: '82%', width: '6%', height: '10%' }}
+            onMouseEnter={() => {
+              setHoveredTarget('stamp');
+              sound.playBlip(360, 0.02);
+            }}
+            onMouseLeave={() => setHoveredTarget(null)}
+            onClick={() => handleTrigger('inspect_floor_crack', 'floor_stamp', 'Kẽ Gạch & Tem', 'search')}
+            title="Kẽ Gạch & Tem Cổ"
+          >
+            <div className="relative flex items-center justify-center group/poi">
+              {/* Radar pulse wave */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#f4a424] animate-ping absolute inset-0 opacity-40" />
+
+              {/* Center icon badge */}
+              <div
+                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg transition-all ${
+                  hoveredTarget === 'stamp'
+                    ? 'scale-125 bg-[#f4a424] text-[#180b07] border-white shadow-[0_0_12px_#f4a424]'
+                    : 'bg-[#2c1c18]/85 text-[#ffc67c] border-[#f4a424]'
+                }`}
+              >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-              ) : (
-                <Scissors className="w-4 h-4 sm:w-5 sm:h-5" />
-              )}
-            </div>
+              </div>
 
-            {/* Floating Tooltip Label */}
-            <div
-              className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
-                hoveredTarget === 'wool' ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              {hasScissors ? 'Giỏ Len Ban Công (Đã Lấy Kéo)' : 'Giỏ Len Ban Công (Có Kéo Đồng)'}
+              {/* Floating Tooltip Label */}
+              <div
+                className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
+                  hoveredTarget === 'stamp' ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                Vật kẹt dưới sàn gạch
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* 3. Hoàng Nhạc Sĩ & Đàn Guitar Thùng Hotspot */}
+        {/* Writing Desk & Tweezer Hotspot */}
         <div
           className="absolute pointer-events-auto cursor-pointer flex items-center justify-center transition-transform z-20"
-          style={{ left: '66%', top: '50%', width: '6%', height: '10%' }}
+          style={{ left: '86%', top: '65%', width: '6%', height: '10%' }}
           onMouseEnter={() => {
-            setHoveredTarget('hoang');
-            sound.playBlip(400, 0.02);
+            setHoveredTarget('desk');
+            sound.playBlip(340, 0.02);
           }}
           onMouseLeave={() => setHoveredTarget(null)}
-          onClick={() => handleTrigger('talk_hoang', 'ch3_hoang', 'Hoàng Nhạc Sĩ', 'talk')}
-          title="Hoàng Nhạc Sĩ"
+          onClick={() => handleTrigger('inspect_souvenir', 'souvenir_table', 'Bàn Viết Thư Bưu Điện', 'search')}
+          title="Bàn Viết Thư Bưu Điện"
         >
           <div className="relative flex items-center justify-center group/poi">
             {/* Radar pulse wave */}
@@ -147,71 +183,24 @@ export const Chapter3Scene: React.FC<Chapter3SceneProps> = ({
             {/* Center icon badge */}
             <div
               className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg transition-all ${
-                hoveredTarget === 'hoang'
+                hoveredTarget === 'desk'
                   ? 'scale-125 bg-[#f4a424] text-[#180b07] border-white shadow-[0_0_12px_#f4a424]'
-                  : isGuitarTuned
-                  ? 'bg-[#14532d]/90 text-[#86efac] border-[#86efac]'
                   : 'bg-[#2c1c18]/85 text-[#ffc67c] border-[#f4a424]'
               }`}
             >
-              <Music className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
             </div>
 
             {/* Floating Tooltip Label */}
             <div
               className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
-                hoveredTarget === 'hoang' ? 'opacity-100' : 'opacity-0'
+                hoveredTarget === 'desk' ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              {isGuitarTuned ? 'Hoàng Nhạc Sĩ (Đàn Đã Chỉnh Dây Mi)' : 'Nói chuyện với Hoàng Nhạc Sĩ'}
+              {hasTweezer ? 'Bàn Viết Thư Bưu Điện' : 'Bàn Viết Thư (Có Kẹp Gắp Tem)'}
             </div>
           </div>
         </div>
-
-        {/* 4. Đài Radio Cổ National Hotspot */}
-        <div
-          className="absolute pointer-events-auto cursor-pointer flex items-center justify-center transition-transform z-20"
-          style={{ left: '84%', top: '63%', width: '6%', height: '10%' }}
-          onMouseEnter={() => {
-            setHoveredTarget('radio');
-            sound.playBlip(440, 0.02);
-          }}
-          onMouseLeave={() => setHoveredTarget(null)}
-          onClick={() => handleTrigger('inspect_radio', 'ch3_radio', 'Đài Radio Cổ National', 'gear')}
-          title="Đài Radio Cổ National"
-        >
-          <div className="relative flex items-center justify-center group/poi">
-            {/* Radar pulse wave */}
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#f4a424] animate-ping absolute inset-0 opacity-40" />
-
-            {/* Center icon badge */}
-            <div
-              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-md shadow-lg transition-all ${
-                hoveredTarget === 'radio'
-                  ? 'scale-125 bg-[#f4a424] text-[#180b07] border-white shadow-[0_0_12px_#f4a424]'
-                  : isRadioTuned
-                  ? 'bg-[#14532d]/90 text-[#86efac] border-[#86efac]'
-                  : 'bg-[#2c1c18]/85 text-[#ffc67c] border-[#f4a424]'
-              }`}
-            >
-              {isRadioTuned ? (
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-              ) : (
-                <RadioIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              )}
-            </div>
-
-            {/* Floating Tooltip Label */}
-            <div
-              className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-[#1e100c] border-2 border-[#ffc67c] text-[#ffc67c] font-ui-label text-[11px] whitespace-nowrap pointer-events-none shadow-md transition-opacity z-30 ${
-                hoveredTarget === 'radio' ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              {isRadioTuned ? 'Đài Radio Cổ (Đã Bắt Sóng 99.9 MHz)' : 'Dò Sóng Đài Radio Cổ National'}
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   );

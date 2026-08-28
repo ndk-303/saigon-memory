@@ -144,9 +144,9 @@ export const GuitarTuningModal: React.FC<GuitarTuningModalProps> = ({
               sound.playClick();
               onClose();
             }}
-            className="text-[#9f8e7a] hover:text-[#ffb4ab] p-1 cursor-pointer"
+            className="px-3 py-1 bg-[#1e100c] text-[#ffb4ab] border-2 border-[#ffb4ab] hover:bg-[#ffb4ab] hover:text-[#1e100c] font-ui-label text-xs font-bold transition-colors cursor-pointer"
           >
-            <X className="w-6 h-6" />
+            ĐÓNG [ESC]
           </button>
         </div>
 
