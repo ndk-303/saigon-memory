@@ -149,8 +149,8 @@
 
 /* Custom Scrollbar for 90s OS style */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: #180b07;
 }
 
@@ -161,5 +161,21 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9f8e7a;
+}
+
+.custom-retro-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: #1e100c;
+}
+
+.custom-retro-scroll::-webkit-scrollbar-thumb {
+  background: #524434;
+  border: 1px solid #9f8e7a;
+  border-radius: 2px;
+}
+
+.custom-retro-scroll::-webkit-scrollbar-thumb:hover {
+  background: #f4a424;
 }
 
